@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Escalas - Operacional</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --accent: #00e676;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --danger: #ef4444;  /* F */
+            --warning: #f97316; /* C / SU */
+            --info: #3b82f6;    /* FE */
+            --border: #333;
+            
+            /* Ajuste solicitado: FO com fundo preto e letra branca */
+            --cor-t: #22c55e;     /* Trabalho: Verde Equilibrado */
+            --cor-fo: #000000;    /* Folga: Fundo Preto */
+            --text-fo: #ffffff;   /* Folga: Letra Branca */
+            
+            --cor-at: #06b6d4;    /* Atestado */
+            --cor-tc: #374151;    /* Término */
+            --cor-af: #8b5cf6;    /* Afastado */
+            --cor-fg: #84cc16;    /* Folguista */
+            --cor-hi: #16a34a;    /* Hora Extra */
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Menu Lateral */
+        .sidebar {
+            width: 220px;
+            background: #000;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            border-right: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 40px;
+            text-align: center;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+
+        .sidebar button {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 15px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            transition: 0.3s;
+            margin-bottom: 5px;
+        }
+
+        .sidebar button:hover, .sidebar button.active-nav {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--accent);
+        }
+
+        .content { margin-left: 220px; padding: 30px; width: calc(100% - 220px); }
+
+        section { display: none; animation: fadeIn 0.3s ease; }
+        section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        h2 { margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 6px solid var(--danger);
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .card:hover { transform: translateY(-5px); }
+        .card.active-status { border-left-color: var(--accent); }
+
+        .form-container {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        input, select {
+            background: #2c2c2c;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 12px;
+            border-radius: 5px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-add {
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #555;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .list-container { list-style: none; }
+        .list-item {
+            background: var(--bg-card);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .actions { display: flex; gap: 10px; }
+        .btn-del { background: none; border: none; color: var(--danger); cursor: pointer; }
+        .btn-edit { background: none; border: none; color: var(--info); cursor: pointer; }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
+        .modal-content {
+            background: var(--bg-card);
+            margin: 2% auto;
+            padding: 25px;
+            width: 95%;
+            max-height: 90vh;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-responsive { overflow: auto; flex-grow: 1; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+        th { background: #111; position: sticky; top: 0; z-index: 2; }
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: center; font-size: 0.85rem; }
+
+        /* Estilização das Células */
+        .cell-T { background: var(--cor-t) !important; color: white; font-weight: bold; }
+        
+        /* FO Alterado para Fundo Preto e Letra Branca */
+        .cell-FO { background: var(--cor-fo) !important; color: var(--text-fo) !important; font-weight: bold; }
+        
+        .cell-F { background: var(--danger) !important; color: white; }
+        .cell-FE { background: var(--info) !important; color: white; }
+        .cell-HI { background: var(--cor-hi) !important; color: white; font-weight: bold; }
+        .cell-C { background: var(--warning) !important; color: white; }
+        .cell-AT { background: var(--cor-at) !important; color: white; }
+        .cell-TC { background: var(--cor-tc) !important; color: white; }
+        .cell-SU { background: #ea580c !important; color: white; }
+        .cell-AF { background: var(--cor-af) !important; color: white; }
+        .cell-FG { background: var(--cor-fg) !important; color: white; }
+
+        .clickable-cell:hover { filter: brightness(1.2); cursor: pointer; }
+        .close { float: right; font-size: 28px; cursor: pointer; color: var(--text-secondary); }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 10px; }
+            .sidebar .logo, .sidebar button span:not(.material-icons) { display: none; }
+            .content { margin-left: 70px; width: calc(100% - 70px); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="logo">GESTÃO DE ESCALAS</div>
+        <button onclick="showSection('dashboard')" id="nav-dashboard"><span class="material-icons">dashboard</span> <span>Dashboard</span></button>
+        <button onclick="showSection('postos')" id="nav-postos"><span class="material-icons">business</span> <span>Postos</span></button>
+        <button onclick="showSection('equipe')" id="nav-equipe"><span class="material-icons">groups</span> <span>Equipe</span></button>
+    </nav>
+
+    <main class="content">
+        <section id="dashboard" class="active">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Painel Operacional</h2>
+                <div id="current-date" style="font-weight: bold; color: var(--accent);"></div>
+            </header>
+            <div id="cards-container" class="grid-cards"></div>
+        </section>
+
+        <section id="postos">
+            <h2>Gestão de Postos</h2>
+            <div class="form-container">
+                <input type="text" id="posto-nome" placeholder="Nome da Unidade/Posto">
+                <button class="btn-add" onclick="addPosto()">Criar Posto</button>
+            </div>
+            <div id="lista-postos" class="list-container"></div>
+        </section>
+
+        <section id="equipe">
+            <h2>Gestão de Efetivo</h2>
+            <div class="form-container">
+                <input type="hidden" id="edit-func-id">
+                <input type="text" id="func-nome" placeholder="Nome do Agente">
+                <select id="func-posto-select"></select>
+                <select id="func-escala">
+                    <option value="12x36">12x36</option>
+                    <option value="5x1">5x1 (Comercial)</option>
+                    <option value="6x1">6x1</option>
+                    <option value="4x2">4x2</option>
+                    <option value="2x1">2x1</option>
+                </select>
+                <input type="date" id="func-inicio" title="Data de Início do Ciclo">
+                <button class="btn-add" id="btn-salvar-func" onclick="saveFuncionario()">Cadastrar</button>
+                <button class="btn-cancel" id="btn-cancelar-edit" onclick="resetFuncForm()">Cancelar</button>
+            </div>
+            <div id="lista-equipe" class="list-container"></div>
+        </section>
+
+        <div id="modal-escala" class="modal">
+            <div class="modal-content">
+                <div>
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <h3 id="modal-titulo" style="margin-bottom: 15px;"></h3>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabela-escala">
+                        <thead><tr id="table-header"></tr></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('guardianDB')) || { postos: [], equipe: [], ocorrencias: {} };
+
+        function saveDB() {
+            localStorage.setItem('guardianDB', JSON.stringify(db));
+            renderAll();
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active-nav'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('nav-' + id).classList.add('active-nav');
+        }
+
+        function addPosto() {
+            const input = document.getElementById('posto-nome');
+            if (!input.value) return;
+            db.postos.push({ id: Date.now(), nome: input.value });
+            input.value = '';
+            saveDB();
+        }
+
+        function removePosto(id) {
+            if(!confirm("Excluir posto e remover todos os funcionários vinculados?")) return;
+            db.postos = db.postos.filter(p => p.id !== id);
+            db.equipe = db.equipe.filter(e => e.postoId !== id);
+            saveDB();
+        }
+
+        function saveFuncionario() {
+            const id = document.getElementById('edit-func-id').value;
+            const nome = document.getElementById('func-nome').value;
+            const postoId = Number(document.getElementById('func-posto-select').value);
+            const escala = document.getElementById('func-escala').value;
+            const inicio = document.getElementById('func-inicio').value;
+            if (!nome || !inicio || !postoId) return alert("Preencha todos os campos");
+            if (id) {
+                const index = db.equipe.findIndex(e => e.id == id);
+                db.equipe[index] = { ...db.equipe[index], nome, postoId, escala, inicio };
+            } else {
+                db.equipe.push({ id: Date.now(), nome, postoId, escala, inicio });
+            }
+            resetFuncForm();
+            saveDB();
+        }
+
+        function editFunc(id) {
+            const func = db.equipe.find(e => e.id == id);
+            if (!func) return;
+            document.getElementById('edit-func-id').value = func.id;
+            document.getElementById('func-nome').value = func.nome;
+            document.getElementById('func-posto-select').value = func.postoId;
+            document.getElementById('func-escala').value = func.escala;
+            document.getElementById('func-inicio').value = func.inicio;
+            document.getElementById('btn-salvar-func').innerText = "Salvar Alterações";
+            document.getElementById('btn-cancelar-edit').style.display = "inline-block";
+            window.scrollTo(0, 0);
+        }
+
+        function resetFuncForm() {
+            document.getElementById('edit-func-id').value = "";
+            document.getElementById('func-nome').value = "";
+            document.getElementById('func-posto-select').value = "";
+            document.getElementById('func-inicio').value = "";
+            document.getElementById('btn-salvar-func').innerText = "Cadastrar";
+            document.getElementById('btn-cancelar-edit').style.display = "none";
+        }
+
+        function removeFunc(id) {
+            if(!confirm("Deseja realmente remover este funcionário?")) return;
+            db.equipe = db.equipe.filter(e => e.id !== id);
+            saveDB();
+        }
+
+        function isTrabalho(data, dataInicio, escala) {
+            const dInicio = new Date(dataInicio + 'T00:00:00');
+            const dAtual = new Date(data + 'T00:00:00');
+            const diffTime = dAtual - dInicio;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays < 0) return false;
+            switch(escala) {
+                case '12x36': return diffDays % 2 === 0;
+                case '5x1': return diffDays % 6 < 5;
+                case '6x1': return diffDays % 7 < 6;
+                case '4x2': return diffDays % 6 < 4;
+                case '2x1': return diffDays % 3 < 2;
+                default: return false;
+            }
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderPostosList();
+            renderEquipeList();
+            updateSelects();
+        }
+
+        function renderDashboard() {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+            const hoje = new Date().toISOString().split('T')[0];
+            db.postos.forEach(posto => {
+                const integrantes = db.equipe.filter(e => e.postoId === posto.id);
+                const emServico = integrantes.some(e => isTrabalho(hoje, e.inicio, e.escala));
+                const card = document.createElement('div');
+                card.className = `card ${emServico ? 'active-status' : ''}`;
+                card.innerHTML = `<h3>${posto.nome}</h3><p>${emServico ? '🟢 EM SERVIÇO' : '🔴 SEM EFETIVO'}</p><small>${integrantes.length} Agentes</small>`;
+                card.onclick = () => openEscala(posto.id);
+                container.appendChild(card);
+            });
+        }
+
+        function openEscala(postoId) {
+            const modal = document.getElementById('modal-escala');
+            const header = document.getElementById('table-header');
+            const body = document.getElementById('table-body');
+            const posto = db.postos.find(p => p.id === postoId);
+            document.getElementById('modal-titulo').innerText = `Escala Mensal - ${posto.nome}`;
+            const agora = new Date();
+            const diasNoMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).getDate();
+            
+            header.innerHTML = '<th>AGENTE</th>';
+            for(let i=1; i<=diasNoMes; i++) header.innerHTML += `<th>${i}</th>`;
+
+            body.innerHTML = '';
+            db.equipe.filter(e => e.postoId === postoId).forEach(f => {
+                let row = `<tr><td style="text-align:left"><b>${f.nome}</b></td>`;
+                for(let d=1; d<=diasNoMes; d++) {
+                    const dataStr = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const baseStatus = isTrabalho(dataStr, f.inicio, f.escala) ? 'T' : 'FO';
+                    const statusFinal = db.ocorrencias[`${f.id}-${dataStr}`] || baseStatus;
+                    row += `<td class="cell-${statusFinal} clickable-cell" onclick="setOcorrencia('${f.id}', '${dataStr}')">${statusFinal}</td>`;
+                }
+                body.innerHTML += row + '</tr>';
+            });
+            modal.style.display = 'block';
+        }
+
+        function setOcorrencia(funcId, data) {
+            const promptMsg = "OPÇÕES:\n(T) Trabalho, (FO) Folga, (F) Falta, (FE) Férias, (HI) H. Extra, (C) Cobertura, (AT) Atestado, (TC) Término, (SU) Suspenso, (AF) Afastado, (FG) Folguista, (L) Limpar";
+            const op = prompt(promptMsg);
+            if(op === null) return;
+            const res = op.toUpperCase();
+            if (res === 'L') delete db.ocorrencias[`${funcId}-${data}`];
+            else if (['T', 'FO', 'F', 'FE', 'HI', 'C', 'AT', 'TC', 'SU', 'AF', 'FG'].includes(res)) db.ocorrencias[`${funcId}-${data}`] = res;
+            saveDB();
+            openEscala(db.equipe.find(e => e.id == funcId).postoId);
+        }
+
+        function updateSelects() {
+            const select = document.getElementById('func-posto-select');
+            select.innerHTML = '<option value="">Selecione o Posto...</option>' +
+                db.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+        }
+
+        function renderPostosList() {
+            document.getElementById('lista-postos').innerHTML = db.postos.map(p => `
+                <div class="list-item"><span>${p.nome}</span>
+                <button class="btn-del" onclick="removePosto(${p.id})"><span class="material-icons">delete</span></button></div>
+            `).join('');
+        }
+
+        function renderEquipeList() {
+            document.getElementById('lista-equipe').innerHTML = db.equipe.map(e => {
+                const posto = db.postos.find(p => p.id === e.postoId);
+                return `
+                    <div class="list-item">
+                        <div><strong>${e.nome}</strong><br><small>${posto ? posto.nome : 'Sem posto'} | ${e.escala}</small></div>
+                        <div class="actions">
+                            <button class="btn-edit" onclick="editFunc(${e.id})"><span class="material-icons">edit</span></button>
+                            <button class="btn-del" onclick="removeFunc(${e.id})"><span class="material-icons">person_remove</span></button>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function closeModal() { document.getElementById('modal-escala').style.display = 'none'; }
+        window.onclick = (e) => { if (e.target.id == 'modal-escala') closeModal(); }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+            renderAll();
+        });
+    </script>
+</body>
+</html>
