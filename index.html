@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Escalas - Operacional</title>
+    <title>Guardian - Gestão de Escalas Operacionais</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
@@ -12,10 +12,12 @@
             --accent: #00e676;
             --text-primary: #ffffff;
             --text-secondary: #b0b0b0;
-            --danger: #ef4444;  /* F */
-            --warning: #f97316; /* C / SU */
-            --info: #3b82f6;    /* FE */
+            --danger: #ef4444;  
+            --warning: #f97316; 
+            --info: #3b82f6;    
             --border: #333;
+            
+            /* Cores das Siglas */
             --cor-t: #22c55e;     
             --cor-fo: #000000;    
             --text-fo: #ffffff;   
@@ -26,48 +28,179 @@
             --cor-hi: #16a34a;    
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-primary); display: flex; min-height: 100vh; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-        .sidebar { width: 220px; background: #000; padding: 20px; position: fixed; height: 100vh; border-right: 1px solid var(--border); z-index: 100; }
-        .logo { font-weight: 800; font-size: 1rem; color: var(--accent); margin-bottom: 40px; text-align: center; letter-spacing: 1.5px; text-transform: uppercase; }
-        .sidebar button { width: 100%; background: none; border: none; color: var(--text-secondary); padding: 15px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; border-radius: 8px; transition: 0.3s; margin-bottom: 5px; }
-        .sidebar button:hover, .sidebar button.active-nav { background: rgba(0, 230, 118, 0.1); color: var(--accent); }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
 
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: #000;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            border-right: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 40px;
+            text-align: center;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .sidebar button {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 15px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            transition: 0.3s;
+            margin-bottom: 5px;
+        }
+
+        .sidebar button:hover, .sidebar button.active-nav {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--accent);
+        }
+
+        /* Conteúdo Principal */
         .content { margin-left: 220px; padding: 30px; width: calc(100% - 220px); }
+
         section { display: none; animation: fadeIn 0.3s ease; }
         section.active { display: block; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: var(--bg-card); padding: 25px; border-radius: 12px; border-left: 6px solid var(--danger); cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .card.active-status { border-left-color: var(--accent); }
-        .card h3 { margin-bottom: 10px; }
-        .efetivo-count { font-size: 0.9rem; color: var(--text-secondary); margin-top: 5px; }
+        /* Dashboard Cards */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
 
-        .form-container { background: var(--bg-card); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
-        input, select { background: #2c2c2c; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 5px; flex: 1; min-width: 150px; }
-        .btn-add { background: var(--accent); color: #000; font-weight: bold; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; }
-        
-        .list-item { background: var(--bg-card); padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .card {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 6px solid var(--danger);
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .card:hover { transform: translateY(-5px); }
+        .card.active-status { border-left-color: var(--accent); }
+
+        .efetivo-info {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Formulários */
+        .form-container {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        input, select {
+            background: #2c2c2c;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 12px;
+            border-radius: 5px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-add {
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Listas */
+        .list-item {
+            background: var(--bg-card);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Modal e Tabela */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
-        .modal-content { background: var(--bg-card); margin: 2% auto; padding: 25px; width: 95%; max-height: 90vh; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-content {
+            background: var(--bg-card);
+            margin: 2% auto;
+            padding: 25px;
+            width: 95%;
+            max-height: 90vh;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
         .table-responsive { overflow: auto; flex-grow: 1; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; min-width: 1200px; }
         th, td { border: 1px solid var(--border); padding: 10px; text-align: center; font-size: 0.85rem; }
+        th { background: #111; position: sticky; top: 0; z-index: 2; }
 
-        .cell-T { background: var(--cor-t) !important; color: white; }
+        /* Estilos de Células por Sigla */
+        .cell-T { background: var(--cor-t) !important; color: white; font-weight: bold; }
         .cell-FO { background: var(--cor-fo) !important; color: var(--text-fo) !important; }
         .cell-F { background: var(--danger) !important; color: white; }
-        .cell-HI { background: var(--cor-hi) !important; color: white; }
+        .cell-FE { background: var(--info) !important; color: white; }
+        .cell-HI { background: var(--cor-hi) !important; color: white; font-weight: bold; }
         .cell-C { background: var(--warning) !important; color: white; }
+        .cell-AT { background: var(--cor-at) !important; color: white; }
+        .cell-TC { background: var(--cor-tc) !important; color: white; }
         .cell-SU { background: #ea580c !important; color: white; }
+        .cell-AF { background: var(--cor-af) !important; color: white; }
+        .cell-FG { background: var(--cor-fg) !important; color: white; }
+
+        .clickable-cell:hover { filter: brightness(1.2); cursor: pointer; }
+        .close { float: right; font-size: 28px; cursor: pointer; color: var(--text-secondary); }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 10px; }
+            .sidebar .logo, .sidebar button span:not(.material-icons) { display: none; }
+            .content { margin-left: 70px; width: calc(100% - 70px); }
+        }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
-        <div class="logo">GESTÃO DE ESCALAS</div>
+        <div class="logo">GUARDIAN SISTEMAS</div>
         <button onclick="showSection('dashboard')" id="nav-dashboard"><span class="material-icons">dashboard</span> <span>Dashboard</span></button>
         <button onclick="showSection('postos')" id="nav-postos"><span class="material-icons">business</span> <span>Postos</span></button>
         <button onclick="showSection('equipe')" id="nav-equipe"><span class="material-icons">groups</span> <span>Equipe</span></button>
@@ -76,7 +209,7 @@
     <main class="content">
         <section id="dashboard" class="active">
             <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Painel Operacional (Tempo Real)</h2>
+                <h2>Painel Operacional em Tempo Real</h2>
                 <div id="current-date" style="font-weight: bold; color: var(--accent);"></div>
             </header>
             <div id="cards-container" class="grid-cards"></div>
@@ -99,22 +232,26 @@
                 <select id="func-posto-select"></select>
                 <select id="func-escala">
                     <option value="12x36">12x36</option>
-                    <option value="5x1">5x1</option>
+                    <option value="5x1">5x1 (Comercial)</option>
                     <option value="6x1">6x1</option>
                     <option value="4x2">4x2</option>
+                    <option value="2x1">2x1</option>
                 </select>
-                <input type="date" id="func-inicio">
+                <input type="date" id="func-inicio" title="Data de Início do Ciclo">
                 <button class="btn-add" id="btn-salvar-func" onclick="saveFuncionario()">Cadastrar</button>
+                <button class="btn-cancel" id="btn-cancelar-edit" style="display:none;" onclick="resetFuncForm()">Cancelar</button>
             </div>
             <div id="lista-equipe" class="list-container"></div>
         </section>
 
         <div id="modal-escala" class="modal">
             <div class="modal-content">
-                <span class="close" style="cursor:pointer; text-align:right; font-size:2rem" onclick="closeModal()">&times;</span>
-                <h3 id="modal-titulo"></h3>
+                <div>
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <h3 id="modal-titulo" style="margin-bottom: 15px;"></h3>
+                </div>
                 <div class="table-responsive">
-                    <table>
+                    <table id="tabela-escala">
                         <thead><tr id="table-header"></tr></thead>
                         <tbody id="table-body"></tbody>
                     </table>
@@ -131,30 +268,43 @@
             renderAll();
         }
 
-        // --- Lógica de Status em Tempo Real ---
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active-nav'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('nav-' + id).classList.add('active-nav');
+        }
+
+        // --- Lógica de Escala e Status ---
         
         function getStatusNoDia(agente, dataStr) {
-            // 1. Verifica se tem alteração manual (Ocorrência)
+            // Verifica se há uma ocorrência manual registrada (vence a escala base)
             const ocorrencia = db.ocorrencias[`${agente.id}-${dataStr}`];
             if (ocorrencia) return ocorrencia;
 
-            // 2. Se não tem ocorrência, calcula pela escala base
+            // Se não houver, calcula pela escala teórica
             return isTrabalhoBase(dataStr, agente.inicio, agente.escala) ? 'T' : 'FO';
         }
 
         function isTrabalhoBase(data, dataInicio, escala) {
             const dInicio = new Date(dataInicio + 'T00:00:00');
             const dAtual = new Date(data + 'T00:00:00');
-            const diffDays = Math.floor((dAtual - dInicio) / (1000 * 60 * 60 * 24));
+            const diffTime = dAtual - dInicio;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
             if (diffDays < 0) return false;
+            
             switch(escala) {
                 case '12x36': return diffDays % 2 === 0;
                 case '5x1': return diffDays % 6 < 5;
                 case '6x1': return diffDays % 7 < 6;
                 case '4x2': return diffDays % 6 < 4;
+                case '2x1': return diffDays % 3 < 2; // Trabalha 2, Folga 1
                 default: return false;
             }
         }
+
+        // --- Renderização do Dashboard (Tempo Real) ---
 
         function renderDashboard() {
             const container = document.getElementById('cards-container');
@@ -164,25 +314,26 @@
             db.postos.forEach(posto => {
                 const agentesDoPosto = db.equipe.filter(e => e.postoId === posto.id);
                 
-                // Filtra quem realmente está trabalhando hoje (T, HI, C ou FG) 
-                // e remove quem tem falta (F), Suspenso (SU), Atestado (AT), etc.
+                // Filtra quem está REALMENTE de serviço hoje
                 const emServicoAgora = agentesDoPosto.filter(agente => {
                     const status = getStatusNoDia(agente, hoje);
-                    const siglasTrabalho = ['T', 'HI', 'C', 'FG'];
-                    const siglasAusencia = ['F', 'SU', 'AT', 'FE', 'AF', 'TC'];
+                    // Siglas que contam como presença
+                    const presenca = ['T', 'HI', 'C', 'FG'];
+                    // Siglas que contam como ausência (Falta, Suspenso, Atestado, etc)
+                    const ausencia = ['F', 'SU', 'AT', 'FE', 'AF', 'TC', 'FO'];
                     
-                    return siglasTrabalho.includes(status) && !siglasAusencia.includes(status);
+                    return presenca.includes(status) && !ausencia.includes(status);
                 });
 
-                const temAlguem = emServicoAgora.length > 0;
+                const temEfetivo = emServicoAgora.length > 0;
                 const card = document.createElement('div');
-                card.className = `card ${temAlguem ? 'active-status' : ''}`;
+                card.className = `card ${temEfetivo ? 'active-status' : ''}`;
                 
                 card.innerHTML = `
                     <h3>${posto.nome}</h3>
-                    <p>${temAlguem ? '🟢 EM SERVIÇO' : '🔴 SEM EFETIVO'}</p>
-                    <div class="efetivo-count">
-                        <strong>${emServicoAgora.length}</strong> de ${agentesDoPosto.length} agentes ativos
+                    <p>${temEfetivo ? '🟢 EM SERVIÇO' : '🔴 SEM EFETIVO'}</p>
+                    <div class="efetivo-info">
+                        <strong>${emServicoAgora.length}</strong> de ${agentesDoPosto.length} agentes disponíveis hoje
                     </div>
                 `;
                 card.onclick = () => openEscala(posto.id);
@@ -190,30 +341,58 @@
             });
         }
 
-        // --- Funções de Interface ---
-
-        function showSection(id) {
-            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
+        // --- Gestão de Postos ---
 
         function addPosto() {
-            const nome = document.getElementById('posto-nome').value;
-            if (!nome) return;
-            db.postos.push({ id: Date.now(), nome });
-            document.getElementById('posto-nome').value = '';
+            const input = document.getElementById('posto-nome');
+            if (!input.value) return;
+            db.postos.push({ id: Date.now(), nome: input.value });
+            input.value = '';
             saveDB();
         }
 
+        function removePosto(id) {
+            if(!confirm("Excluir posto e seus funcionários?")) return;
+            db.postos = db.postos.filter(p => p.id !== id);
+            db.equipe = db.equipe.filter(e => e.postoId !== id);
+            saveDB();
+        }
+
+        // --- Gestão de Equipe ---
+
         function saveFuncionario() {
+            const id = document.getElementById('edit-func-id').value;
             const nome = document.getElementById('func-nome').value;
             const postoId = Number(document.getElementById('func-posto-select').value);
             const escala = document.getElementById('func-escala').value;
             const inicio = document.getElementById('func-inicio').value;
-            if (!nome || !inicio || !postoId) return alert("Preencha tudo");
-            db.equipe.push({ id: Date.now(), nome, postoId, escala, inicio });
+            
+            if (!nome || !inicio || !postoId) return alert("Preencha todos os campos");
+
+            if (id) {
+                const index = db.equipe.findIndex(e => e.id == id);
+                db.equipe[index] = { ...db.equipe[index], nome, postoId, escala, inicio };
+            } else {
+                db.equipe.push({ id: Date.now(), nome, postoId, escala, inicio });
+            }
+            resetFuncForm();
             saveDB();
         }
+
+        function resetFuncForm() {
+            document.getElementById('edit-func-id').value = "";
+            document.getElementById('func-nome').value = "";
+            document.getElementById('btn-salvar-func').innerText = "Cadastrar";
+            document.getElementById('btn-cancelar-edit').style.display = "none";
+        }
+
+        function removeFunc(id) {
+            if(!confirm("Remover funcionário?")) return;
+            db.equipe = db.equipe.filter(e => e.id !== id);
+            saveDB();
+        }
+
+        // --- Escala Mensal (Modal) ---
 
         function openEscala(postoId) {
             const modal = document.getElementById('modal-escala');
@@ -223,42 +402,60 @@
             const agora = new Date();
             const diasNoMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).getDate();
             
-            document.getElementById('modal-titulo').innerText = `Escala: ${posto.nome}`;
+            document.getElementById('modal-titulo').innerText = `Controle de Escala - ${posto.nome}`;
+            
             header.innerHTML = '<th>AGENTE</th>' + Array.from({length: diasNoMes}, (_, i) => `<th>${i+1}</th>`).join('');
 
             body.innerHTML = db.equipe.filter(e => e.postoId === postoId).map(f => {
-                let row = `<tr><td style="text-align:left"><b>${f.nome}</b></td>`;
+                let row = `<tr><td style="text-align:left"><strong>${f.nome}</strong></td>`;
                 for(let d=1; d<=diasNoMes; d++) {
                     const dataStr = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                     const status = getStatusNoDia(f, dataStr);
-                    row += `<td class="cell-${status}" onclick="setOcorrencia('${f.id}', '${dataStr}')" style="cursor:pointer">${status}</td>`;
+                    row += `<td class="cell-${status} clickable-cell" onclick="setOcorrencia('${f.id}', '${dataStr}', ${postoId})">${status}</td>`;
                 }
                 return row + '</tr>';
             }).join('');
+            
             modal.style.display = 'block';
         }
 
-        function setOcorrencia(funcId, data) {
-            const op = prompt("(T) Trabalho, (FO) Folga, (F) Falta, (C) Cobertura, (HI) Extra, (AT) Atestado, (SU) Suspenso, (L) Limpar");
-            if(!op) return;
+        function setOcorrencia(funcId, data, postoId) {
+            const msg = "SELECIONE A SIGLA:\n(T) Trabalho\n(FO) Folga\n(F) Falta\n(C) Cobertura\n(HI) Hora Extra\n(AT) Atestado\n(SU) Suspenso\n(FE) Férias\n(L) Limpar Registro";
+            const op = prompt(msg);
+            if(op === null) return;
+            
             const res = op.toUpperCase();
             if (res === 'L') delete db.ocorrencias[`${funcId}-${data}`];
-            else db.ocorrencias[`${funcId}-${data}`] = res;
+            else if (['T', 'FO', 'F', 'FE', 'HI', 'C', 'AT', 'SU', 'AF', 'FG'].includes(res)) {
+                db.ocorrencias[`${funcId}-${data}`] = res;
+            }
+            
             saveDB();
-            closeModal();
+            openEscala(postoId); // Atualiza o modal aberto
         }
+
+        // --- Renderizadores Auxiliares ---
 
         function renderPostosList() {
-            document.getElementById('lista-postos').innerHTML = db.postos.map(p => `<div class="list-item">${p.nome}</div>`).join('');
-        }
-
-        function updateSelects() {
-            const select = document.getElementById('func-posto-select');
-            select.innerHTML = '<option value="">Selecione o Posto...</option>' + db.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            document.getElementById('lista-postos').innerHTML = db.postos.map(p => `
+                <div class="list-item"><span>${p.nome}</span>
+                <button onclick="removePosto(${p.id})" style="color:red; background:none; border:none; cursor:pointer"><span class="material-icons">delete</span></button></div>
+            `).join('');
         }
 
         function renderEquipeList() {
-            document.getElementById('lista-equipe').innerHTML = db.equipe.map(e => `<div class="list-item">${e.nome} (${e.escala})</div>`).join('');
+            document.getElementById('lista-equipe').innerHTML = db.equipe.map(e => {
+                const p = db.postos.find(p => p.id === e.postoId);
+                return `<div class="list-item">
+                    <div><strong>${e.nome}</strong><br><small>${p ? p.nome : 'Sem Posto'} | Escala ${e.escala}</small></div>
+                    <button onclick="removeFunc(${e.id})" style="color:red; background:none; border:none; cursor:pointer"><span class="material-icons">person_remove</span></button>
+                </div>`;
+            }).join('');
+        }
+
+        function updateSelects() {
+            const s = document.getElementById('func-posto-select');
+            s.innerHTML = '<option value="">Selecione o Posto...</option>' + db.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
         }
 
         function renderAll() {
@@ -269,9 +466,10 @@
         }
 
         function closeModal() { document.getElementById('modal-escala').style.display = 'none'; }
-        
+
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
+            const dataHoje = new Date();
+            document.getElementById('current-date').innerText = dataHoje.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
             renderAll();
         });
     </script>
