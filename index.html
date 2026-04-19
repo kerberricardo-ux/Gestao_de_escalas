@@ -8,12 +8,26 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-dark: #121212; --bg-card: #1e1e1e; --accent: #00e676;
-            --text-primary: #ffffff; --text-secondary: #b0b0b0;
-            --danger: #ef4444; --warning: #f97316; --info: #3b82f6;    
-            --border: #333; --cor-t: #22c55e; --cor-fo: #000000;    
-            --text-fo: #ffffff; --cor-at: #06b6d4; --cor-tc: #374151;    
-            --cor-af: #8b5cf6; --cor-fg: #84cc16; --cor-hi: #16a34a;    
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --accent: #00e676;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --danger: #ef4444;  
+            --warning: #f97316; 
+            --info: #3b82f6;    
+            --border: #333;
+            
+            /* Cores das Siglas Corrigidas */
+            --cor-t: #22c55e;     /* Verde - Trabalho */
+            --cor-fo: #000000;    /* Preto - Folga */
+            --cor-f: #ef4444;     /* Vermelho - Falta */
+            --cor-su: #ea580c;    /* Laranja Escuro - Suspensão */
+            --cor-at: #06b6d4;    /* Ciano - Atestado */
+            --cor-fe: #3b82f6;    /* Azul - Férias */
+            --cor-hi: #16a34a;    /* Verde Escuro - Hora Extra */
+            --cor-fg: #84cc16;    /* Lima - Folguista */
+            --cor-c: #f97316;     /* Laranja - Cobertura */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
@@ -55,13 +69,16 @@
         th, td { border: 1px solid var(--border); padding: 10px; text-align: center; font-size: 0.85rem; }
         th { background: #111; position: sticky; top: 0; z-index: 2; }
 
-        .cell-T { background: var(--cor-t) !important; color: white; }
-        .cell-FO { background: var(--cor-fo) !important; color: white; }
-        .cell-F { background: var(--danger) !important; color: white; }
-        .cell-SU { background: #ea580c !important; color: white; }
+        /* Classes de Cores para a Tabela */
+        .cell-T { background: var(--cor-t) !important; color: white; font-weight: bold; }
+        .cell-FO { background: var(--cor-fo) !important; color: #555; }
+        .cell-F { background: var(--cor-f) !important; color: white; }
+        .cell-SU { background: var(--cor-su) !important; color: white; }
         .cell-AT { background: var(--cor-at) !important; color: white; }
+        .cell-FE { background: var(--cor-fe) !important; color: white; }
         .cell-HI { background: var(--cor-hi) !important; color: white; }
-        .cell-FG { background: var(--cor-fg) !important; color: white; }
+        .cell-FG { background: var(--cor-fg) !important; color: white; font-weight: bold; }
+        .cell-C { background: var(--cor-c) !important; color: white; }
 
         .close { float: right; font-size: 28px; cursor: pointer; color: var(--text-secondary); }
     </style>
@@ -163,7 +180,6 @@
             } catch (err) { console.error(err); }
         }
 
-        // LÓGICA DE ESCALAS COMPLETA
         function isTrabalho(data, inicio, escala) {
             const dI = new Date(inicio + 'T00:00:00');
             const dA = new Date(data + 'T00:00:00');
@@ -207,7 +223,7 @@
         }
 
         async function setSigla(agenteId, data, postoId) {
-            const s = prompt("SIGLA: T, FO, FG, F, SU, HI, C, AT, FE, L (Limpar)").toUpperCase();
+            const s = prompt("SIGLA: T, FO, FG (Folguista), F (Falta), SU (Suspensão), HI (Hora Extra), C (Cobertura), AT (Atestado), FE (Férias), L (Limpar)").toUpperCase();
             if (!s) return;
             if (s === 'L') await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data });
             else await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data, sigla: s });
