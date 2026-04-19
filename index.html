@@ -18,18 +18,17 @@
             --info: #3b82f6;    
             --border: #333;
             
-            /* Cores das Siglas */
-            --cor-t: #22c55e;     /* Verde - Trabalho */
-            --cor-fo: #000000;    /* Preto - Folga */
-            --cor-f: #ef4444;     /* Vermelho - Falta */
-            --cor-su: #ea580c;    /* Laranja Escuro - Suspensão */
-            --cor-at: #06b6d4;    /* Ciano - Atestado */
-            --cor-fe: #3b82f6;    /* Azul - Férias */
-            --cor-hi: #16a34a;    /* Verde Escuro - Hora Extra */
-            --cor-fg: #84cc16;    /* Lima - Folguista */
-            --cor-c: #f97316;     /* Laranja - Cobertura */
-            --cor-af: #8b5cf6;    /* Roxo - Afastamento */
-            --cor-tc: #374151;    /* Cinza - Treinamento */
+            --cor-t: #22c55e;     
+            --cor-fo: #000000;    
+            --cor-f: #ef4444;     
+            --cor-su: #ea580c;    
+            --cor-at: #06b6d4;    
+            --cor-fe: #3b82f6;    
+            --cor-hi: #16a34a;    
+            --cor-fg: #84cc16;    
+            --cor-c: #f97316;     
+            --cor-af: #8b5cf6;    
+            --cor-tc: #374151;    
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
@@ -45,7 +44,6 @@
         section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Dashboard Gerencial */
         .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: var(--bg-card); padding: 20px; border-radius: 12px; text-align: center; border-bottom: 4px solid var(--accent); }
@@ -55,8 +53,11 @@
         .filter-select { background: #2c2c2c; color: var(--accent); border: 1px solid var(--accent); padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; outline: none; }
 
         .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: var(--bg-card); padding: 25px; border-radius: 12px; border-left: 6px solid var(--danger); cursor: pointer; transition: 0.2s; }
+        .card { background: var(--bg-card); padding: 25px; border-radius: 12px; border-left: 6px solid var(--danger); cursor: pointer; transition: 0.2s; position: relative; }
         .card.active-status { border-left-color: var(--accent); }
+        
+        /* Estilo para o contador no card */
+        .card-count { position: absolute; top: 15px; right: 15px; background: rgba(0, 230, 118, 0.2); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
 
         .form-container { background: var(--bg-card); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
         input, select { background: #2c2c2c; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 5px; flex: 1; min-width: 150px; }
@@ -71,7 +72,6 @@
         th, td { border: 1px solid var(--border); padding: 10px; text-align: center; font-size: 0.85rem; }
         th { background: #111; position: sticky; top: 0; z-index: 2; }
 
-        /* Classes de Cores para a Tabela */
         .cell-T { background: var(--cor-t) !important; color: white; font-weight: bold; }
         .cell-FO { background: var(--cor-fo) !important; color: #555; }
         .cell-F { background: var(--cor-f) !important; color: white; }
@@ -264,15 +264,26 @@
 
             const container = document.getElementById('cards-container');
             container.innerHTML = '';
+            
             localDB.postos.forEach(p => {
                 const ags = localDB.equipe.filter(e => e.posto_id === p.id);
-                const servico = ags.filter(a => {
-                    const s = localDB.ocorrencias[`${a.id}-${hoje}`] || (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
-                    return ['T', 'HI', 'C', 'FG'].includes(s) && !['F', 'SU', 'FO', 'AT', 'FE'].includes(s);
+                
+                // Lógica de contagem em tempo real (Hoje)
+                const servicoNoPosto = ags.filter(a => {
+                    const siglaAtual = localDB.ocorrencias[`${a.id}-${hoje}`] || (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
+                    // Consideramos serviço: T (Trabalho), HI (Hora Extra), C (Cobertura) e FG (Folguista)
+                    return ['T', 'HI', 'C', 'FG'].includes(siglaAtual);
                 });
+
                 const card = document.createElement('div');
-                card.className = `card ${servico.length > 0 ? 'active-status' : ''}`;
-                card.innerHTML = `<h3>${p.nome}</h3><p>${servico.length > 0 ? '🟢 OPERACIONAL' : '🔴 VAGO'}</p>`;
+                card.className = `card ${servicoNoPosto.length > 0 ? 'active-status' : ''}`;
+                
+                card.innerHTML = `
+                    <div class="card-count">${servicoNoPosto.length} de serviço</div>
+                    <h3>${p.nome}</h3>
+                    <p>${servicoNoPosto.length > 0 ? '🟢 OPERACIONAL' : '🔴 VAGO'}</p>
+                `;
+                
                 card.onclick = () => openEscala(p.id);
                 container.appendChild(card);
             });
