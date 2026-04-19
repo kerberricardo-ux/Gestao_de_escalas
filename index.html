@@ -252,14 +252,14 @@
     </main>
 
     <script>
-        // --- CONFIGURAÇÃO SUPABASE ---
+        // --- CONFIGURAÇÃO SUPABASE ATUALIZADA ---
         const SB_URL = 'https://wamnvdkwmaiwhkrnjgoz.supabase.co'; 
-        // ATENÇÃO: COLOQUE A CHAVE INTEIRA ABAIXO
-        const SB_KEY = 'COLE_AQUI_A_SUA_CHAVE_ANON_COMPLETA'; 
+        const SB_KEY = 'sb_publishable_K_SPgZndx26WP11_tt6fsw_dmsD7Zou'; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let db = { postos: [], equipe: [], ocorrencias: {} };
 
+        // Sincronização inicial com o Banco
         async function fetchAll() {
             try {
                 const { data: p } = await _supabase.from('postos').select('*');
@@ -326,7 +326,7 @@
                     <h3>${posto.nome}</h3>
                     <p>${temEfetivo ? '🟢 EM SERVIÇO' : '🔴 SEM EFETIVO'}</p>
                     <div class="efetivo-info">
-                        <strong>${emServicoAgora.length}</strong> agentes hoje
+                        <strong>${emServicoAgora.length}</strong> agentes disponíveis hoje
                     </div>
                 `;
                 card.onclick = () => openEscala(posto.id);
@@ -354,7 +354,8 @@
             const { error } = await _supabase.from('equipe').insert([{ nome, posto_id, escala, inicio }]);
             if (error) alert("Erro ao cadastrar: " + error.message);
             else {
-                resetFuncForm();
+                document.getElementById('func-nome').value = "";
+                document.getElementById('func-inicio').value = "";
                 fetchAll();
             }
         }
@@ -378,7 +379,7 @@
             const posto = db.postos.find(p => p.id === postoId);
             const agora = new Date();
             const diasNoMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).getDate();
-            document.getElementById('modal-titulo').innerText = `Controle - ${posto.nome}`;
+            document.getElementById('modal-titulo').innerText = `Escala - ${posto.nome}`;
             header.innerHTML = '<th>AGENTE</th>' + Array.from({length: diasNoMes}, (_, i) => `<th>${i+1}</th>`).join('');
             body.innerHTML = db.equipe.filter(e => e.posto_id === postoId).map(f => {
                 let row = `<tr><td style="text-align:left"><strong>${f.nome}</strong></td>`;
@@ -400,7 +401,6 @@
         }
 
         function renderAll() { renderDashboard(); renderListas(); }
-        function resetFuncForm() { document.getElementById('func-nome').value = ""; document.getElementById('func-inicio').value = ""; }
         function closeModal() { document.getElementById('modal-escala').style.display = 'none'; }
         
         document.addEventListener('DOMContentLoaded', () => {
