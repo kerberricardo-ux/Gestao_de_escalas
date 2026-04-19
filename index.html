@@ -193,7 +193,7 @@
 
     <nav class="sidebar">
         <div class="logo">GUARDIAN SISTEMAS</div>
-        <button onclick="showSection('dashboard')" id="nav-dashboard"><span class="material-icons">dashboard</span> <span>Dashboard</span></button>
+        <button onclick="showSection('dashboard')" id="nav-dashboard" class="active-nav"><span class="material-icons">dashboard</span> <span>Dashboard</span></button>
         <button onclick="showSection('postos')" id="nav-postos"><span class="material-icons">business</span> <span>Postos</span></button>
         <button onclick="showSection('equipe')" id="nav-equipe"><span class="material-icons">groups</span> <span>Equipe</span></button>
     </nav>
@@ -231,7 +231,6 @@
                 </select>
                 <input type="date" id="func-inicio" title="Data de Início do Ciclo">
                 <button class="btn-add" id="btn-salvar-func" onclick="saveFuncionario()">Cadastrar</button>
-                <button class="btn-cancel" id="btn-cancelar-edit" style="display:none;" onclick="resetFuncForm()">Cancelar</button>
             </div>
             <div id="lista-equipe" class="list-container"></div>
         </section>
@@ -254,14 +253,13 @@
 
     <script>
         // --- CONFIGURAÇÃO SUPABASE ---
-        // Dados capturados das suas imagens de configuração
         const SB_URL = 'https://wamnvdkwmaiwhkrnjgoz.supabase.co'; 
-        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhbW52ZGt3bWFpd2hrcm5qZ296Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM0ODU0NDMsImV4cCI6MjAyOTA0MTQ0M30.sb_publishable_BCmAeng71xuI2_eIDgPeAg_Vg2qJ_...'; // Aqui você deve colar a chave completa que copiou (anon public)
+        // ATENÇÃO: COLOQUE A CHAVE INTEIRA ABAIXO
+        const SB_KEY = 'COLE_AQUI_A_SUA_CHAVE_ANON_COMPLETA'; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let db = { postos: [], equipe: [], ocorrencias: {} };
 
-        // Carregar dados iniciais do Banco de Dados
         async function fetchAll() {
             try {
                 const { data: p } = await _supabase.from('postos').select('*');
@@ -277,7 +275,7 @@
 
                 renderAll();
             } catch (err) {
-                console.error("Erro ao sincronizar com Supabase:", err);
+                console.error("Erro ao sincronizar:", err);
             }
         }
 
@@ -318,7 +316,6 @@
                 const agentesDoPosto = db.equipe.filter(e => e.posto_id === posto.id);
                 const emServicoAgora = agentesDoPosto.filter(agente => {
                     const status = getStatusNoDia(agente, hoje);
-                    // Regra: Somente conta como serviço se estiver trabalhando e não houver sigla de ausência (Falta, Suspensão, etc)
                     return ['T', 'HI', 'C', 'FG'].includes(status) && !['F', 'SU', 'AT', 'FO', 'FE', 'AF', 'TC'].includes(status);
                 });
 
@@ -329,7 +326,7 @@
                     <h3>${posto.nome}</h3>
                     <p>${temEfetivo ? '🟢 EM SERVIÇO' : '🔴 SEM EFETIVO'}</p>
                     <div class="efetivo-info">
-                        <strong>${emServicoAgora.length}</strong> de ${agentesDoPosto.length} agentes disponíveis hoje
+                        <strong>${emServicoAgora.length}</strong> agentes hoje
                     </div>
                 `;
                 card.onclick = () => openEscala(posto.id);
@@ -341,51 +338,33 @@
             const nome = document.getElementById('posto-nome').value;
             if (!nome) return;
             const { error } = await _supabase.from('postos').insert([{ nome }]);
-            if (error) {
-                alert("Erro ao salvar posto: " + error.message);
-            } else {
+            if (error) alert("Erro ao salvar: " + error.message);
+            else {
                 document.getElementById('posto-nome').value = '';
                 fetchAll();
             }
         }
 
         async function saveFuncionario() {
-            const id = document.getElementById('edit-func-id').value;
             const nome = document.getElementById('func-nome').value;
             const posto_id = document.getElementById('func-posto-select').value;
             const escala = document.getElementById('func-escala').value;
             const inicio = document.getElementById('func-inicio').value;
-            
-            if (!nome || !inicio || !posto_id) return alert("Preencha todos os campos");
-
-            if (id) {
-                await _supabase.from('equipe').update({ nome, posto_id, escala, inicio }).eq('id', id);
-            } else {
-                await _supabase.from('equipe').insert([{ nome, posto_id, escala, inicio }]);
+            if (!nome || !inicio || !posto_id) return alert("Preencha tudo");
+            const { error } = await _supabase.from('equipe').insert([{ nome, posto_id, escala, inicio }]);
+            if (error) alert("Erro ao cadastrar: " + error.message);
+            else {
+                resetFuncForm();
+                fetchAll();
             }
-            resetFuncForm();
-            fetchAll();
-        }
-
-        async function removePosto(id) {
-            if(!confirm("Excluir posto e todos os funcionários vinculados?")) return;
-            await _supabase.from('postos').delete().eq('id', id);
-            fetchAll();
-        }
-
-        async function removeFunc(id) {
-            if(!confirm("Remover funcionário?")) return;
-            await _supabase.from('equipe').delete().eq('id', id);
-            fetchAll();
         }
 
         async function setOcorrencia(agenteId, data, postoId) {
-            const sigla = prompt("OPÇÕES:\n(T) Trabalho, (FO) Folga, (F) Falta, (C) Cobertura, (HI) Hora Extra, (AT) Atestado, (SU) Suspenso, (FE) Férias, (L) Limpar").toUpperCase();
-            if(sigla === null) return;
-            
+            const sigla = prompt("SIGLA: T, FO, F, C, HI, AT, SU, FE, L (Limpar)").toUpperCase();
+            if (!sigla) return;
             if (sigla === 'L') {
                 await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data: data });
-            } else if (['T', 'FO', 'F', 'C', 'HI', 'AT', 'SU', 'FE', 'AF', 'FG', 'TC'].includes(sigla)) {
+            } else {
                 await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data: data, sigla: sigla });
             }
             await fetchAll();
@@ -399,16 +378,14 @@
             const posto = db.postos.find(p => p.id === postoId);
             const agora = new Date();
             const diasNoMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).getDate();
-            
-            document.getElementById('modal-titulo').innerText = `Controle de Escala Mensal - ${posto.nome}`;
+            document.getElementById('modal-titulo').innerText = `Controle - ${posto.nome}`;
             header.innerHTML = '<th>AGENTE</th>' + Array.from({length: diasNoMes}, (_, i) => `<th>${i+1}</th>`).join('');
-
             body.innerHTML = db.equipe.filter(e => e.posto_id === postoId).map(f => {
                 let row = `<tr><td style="text-align:left"><strong>${f.nome}</strong></td>`;
                 for(let d=1; d<=diasNoMes; d++) {
-                    const dataStr = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                    const status = getStatusNoDia(f, dataStr);
-                    row += `<td class="cell-${status} clickable-cell" onclick="setOcorrencia('${f.id}', '${dataStr}', '${postoId}')">${status}</td>`;
+                    const dt = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const s = getStatusNoDia(f, dt);
+                    row += `<td class="cell-${s} clickable-cell" onclick="setOcorrencia('${f.id}', '${dt}', '${postoId}')">${s}</td>`;
                 }
                 return row + '</tr>';
             }).join('');
@@ -416,35 +393,14 @@
         }
 
         function renderListas() {
-            document.getElementById('lista-postos').innerHTML = db.postos.map(p => `
-                <div class="list-item"><span>${p.nome}</span>
-                <button onclick="removePosto('${p.id}')" style="color:red; background:none; border:none; cursor:pointer"><span class="material-icons">delete</span></button></div>
-            `).join('');
-
-            document.getElementById('lista-equipe').innerHTML = db.equipe.map(e => {
-                const p = db.postos.find(p => p.id === e.posto_id);
-                return `<div class="list-item">
-                    <div><strong>${e.nome}</strong><br><small>${p ? p.nome : 'Sem Posto'} | ${e.escala}</small></div>
-                    <button onclick="removeFunc('${e.id}')" style="color:red; background:none; border:none; cursor:pointer"><span class="material-icons">person_remove</span></button>
-                </div>`;
-            }).join('');
-
+            document.getElementById('lista-postos').innerHTML = db.postos.map(p => `<div class="list-item"><span>${p.nome}</span></div>`).join('');
+            document.getElementById('lista-equipe').innerHTML = db.equipe.map(e => `<div class="list-item"><span>${e.nome}</span></div>`).join('');
             const s = document.getElementById('func-posto-select');
             s.innerHTML = '<option value="">Selecione o Posto...</option>' + db.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
         }
 
-        function renderAll() {
-            renderDashboard();
-            renderListas();
-        }
-
-        function resetFuncForm() {
-            document.getElementById('edit-func-id').value = "";
-            document.getElementById('func-nome').value = "";
-            document.getElementById('func-posto-select').value = "";
-            document.getElementById('func-inicio').value = "";
-        }
-
+        function renderAll() { renderDashboard(); renderListas(); }
+        function resetFuncForm() { document.getElementById('func-nome').value = ""; document.getElementById('func-inicio').value = ""; }
         function closeModal() { document.getElementById('modal-escala').style.display = 'none'; }
         
         document.addEventListener('DOMContentLoaded', () => {
