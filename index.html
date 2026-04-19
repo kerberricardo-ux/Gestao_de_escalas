@@ -18,7 +18,7 @@
             --info: #3b82f6;    
             --border: #333;
             
-            /* Cores das Siglas Corrigidas */
+            /* Cores das Siglas */
             --cor-t: #22c55e;     /* Verde - Trabalho */
             --cor-fo: #000000;    /* Preto - Folga */
             --cor-f: #ef4444;     /* Vermelho - Falta */
@@ -28,6 +28,8 @@
             --cor-hi: #16a34a;    /* Verde Escuro - Hora Extra */
             --cor-fg: #84cc16;    /* Lima - Folguista */
             --cor-c: #f97316;     /* Laranja - Cobertura */
+            --cor-af: #8b5cf6;    /* Roxo - Afastamento */
+            --cor-tc: #374151;    /* Cinza - Treinamento */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
@@ -79,6 +81,8 @@
         .cell-HI { background: var(--cor-hi) !important; color: white; }
         .cell-FG { background: var(--cor-fg) !important; color: white; font-weight: bold; }
         .cell-C { background: var(--cor-c) !important; color: white; }
+        .cell-AF { background: var(--cor-af) !important; color: white; }
+        .cell-TC { background: var(--cor-tc) !important; color: white; }
 
         .close { float: right; font-size: 28px; cursor: pointer; color: var(--text-secondary); }
     </style>
@@ -223,7 +227,7 @@
         }
 
         async function setSigla(agenteId, data, postoId) {
-            const s = prompt("SIGLA: T, FO, FG (Folguista), F (Falta), SU (Suspensão), HI (Hora Extra), C (Cobertura), AT (Atestado), FE (Férias), L (Limpar)").toUpperCase();
+            const s = prompt("DIGITE A SIGLA:\nT = Trabalho\nFO = Folga\nFG = Folguista\nF = Falta\nSU = Suspensão\nHI = Hora Extra\nC = Cobertura\nAT = Atestado\nFE = Férias\nL = Limpar").toUpperCase();
             if (!s) return;
             if (s === 'L') await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data });
             else await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data, sigla: s });
