@@ -8,120 +8,47 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-dark: #121212;
-            --bg-card: #1e1e1e;
-            --accent: #00e676;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --danger: #ef4444;  
-            --warning: #f97316; 
-            --info: #3b82f6;    
-            --border: #333;
-            --cor-t: #22c55e;     
-            --cor-fo: #000000;    
-            --text-fo: #ffffff;   
-            --cor-at: #06b6d4;    
-            --cor-tc: #374151;    
-            --cor-af: #8b5cf6;    
-            --cor-fg: #84cc16;    
-            --cor-hi: #16a34a;    
+            --bg-dark: #121212; --bg-card: #1e1e1e; --accent: #00e676;
+            --text-primary: #ffffff; --text-secondary: #b0b0b0;
+            --danger: #ef4444; --warning: #f97316; --info: #3b82f6;    
+            --border: #333; --cor-t: #22c55e; --cor-fo: #000000;    
+            --text-fo: #ffffff; --cor-at: #06b6d4; --cor-tc: #374151;    
+            --cor-af: #8b5cf6; --cor-fg: #84cc16; --cor-hi: #16a34a;    
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-primary); display: flex; min-height: 100vh; }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-primary);
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 220px; background: #000; padding: 20px;
-            position: fixed; height: 100vh; border-right: 1px solid var(--border); z-index: 100;
-        }
-
-        .logo {
-            font-weight: 800; font-size: 1rem; color: var(--accent);
-            margin-bottom: 40px; text-align: center; letter-spacing: 1.5px; text-transform: uppercase;
-        }
-
-        .sidebar button {
-            width: 100%; background: none; border: none; color: var(--text-secondary);
-            padding: 15px; text-align: left; cursor: pointer; display: flex;
-            align-items: center; gap: 12px; border-radius: 8px; transition: 0.3s; margin-bottom: 5px;
-        }
-
-        .sidebar button:hover, .sidebar button.active-nav {
-            background: rgba(0, 230, 118, 0.1); color: var(--accent);
-        }
+        .sidebar { width: 220px; background: #000; padding: 20px; position: fixed; height: 100vh; border-right: 1px solid var(--border); z-index: 100; }
+        .logo { font-weight: 800; font-size: 1rem; color: var(--accent); margin-bottom: 40px; text-align: center; letter-spacing: 1.5px; text-transform: uppercase; }
+        .sidebar button { width: 100%; background: none; border: none; color: var(--text-secondary); padding: 15px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; border-radius: 8px; transition: 0.3s; margin-bottom: 5px; }
+        .sidebar button:hover, .sidebar button.active-nav { background: rgba(0, 230, 118, 0.1); color: var(--accent); }
 
         .content { margin-left: 220px; padding: 30px; width: calc(100% - 220px); }
-
         section { display: none; animation: fadeIn 0.3s ease; }
         section.active { display: block; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Dashboard Gerencial */
-        .stats-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-        }
-
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px; margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: var(--bg-card); padding: 20px; border-radius: 12px;
-            text-align: center; border-bottom: 4px solid var(--accent);
-        }
-
+        .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--bg-card); padding: 20px; border-radius: 12px; text-align: center; border-bottom: 4px solid var(--accent); }
         .stat-card h3 { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px; text-transform: uppercase; }
         .stat-card .value { font-size: 2.2rem; font-weight: bold; }
         .stat-card.alert { border-bottom-color: var(--danger); }
+        .filter-select { background: #2c2c2c; color: var(--accent); border: 1px solid var(--accent); padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; outline: none; }
 
-        .filter-select {
-            background: #2c2c2c; color: var(--accent); border: 1px solid var(--accent);
-            padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; outline: none;
-        }
-
-        .grid-cards {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;
-        }
-
-        .card {
-            background: var(--bg-card); padding: 25px; border-radius: 12px;
-            border-left: 6px solid var(--danger); cursor: pointer; transition: 0.2s;
-        }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--bg-card); padding: 25px; border-radius: 12px; border-left: 6px solid var(--danger); cursor: pointer; transition: 0.2s; }
         .card.active-status { border-left-color: var(--accent); }
 
-        .form-container {
-            background: var(--bg-card); padding: 20px; border-radius: 8px;
-            margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px;
-        }
+        .form-container { background: var(--bg-card); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+        input, select { background: #2c2c2c; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 5px; flex: 1; min-width: 150px; }
+        .btn-add { background: var(--accent); color: #000; font-weight: bold; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; }
 
-        input, select {
-            background: #2c2c2c; border: 1px solid var(--border); color: white;
-            padding: 12px; border-radius: 5px; flex: 1; min-width: 150px;
-        }
-
-        .btn-add {
-            background: var(--accent); color: #000; font-weight: bold;
-            border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer;
-        }
-
-        .list-item {
-            background: var(--bg-card); padding: 15px; margin-bottom: 10px;
-            border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
-        }
-
+        .list-item { background: var(--bg-card); padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
-        .modal-content {
-            background: var(--bg-card); margin: 2% auto; padding: 25px; width: 95%;
-            max-height: 90vh; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column;
-        }
+        .modal-content { background: var(--bg-card); margin: 2% auto; padding: 25px; width: 95%; max-height: 90vh; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
 
         .table-responsive { overflow: auto; flex-grow: 1; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; min-width: 1200px; }
@@ -133,6 +60,8 @@
         .cell-F { background: var(--danger) !important; color: white; }
         .cell-SU { background: #ea580c !important; color: white; }
         .cell-AT { background: var(--cor-at) !important; color: white; }
+        .cell-HI { background: var(--cor-hi) !important; color: white; }
+        .cell-FG { background: var(--cor-fg) !important; color: white; }
 
         .close { float: right; font-size: 28px; cursor: pointer; color: var(--text-secondary); }
     </style>
@@ -156,30 +85,13 @@
                     <option value="mes">Mês Atual</option>
                 </select>
             </div>
-
             <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Postos Ativos</h3>
-                    <div class="value" id="stat-postos">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Efetivo Total</h3>
-                    <div class="value" id="stat-agentes">0</div>
-                </div>
-                <div class="stat-card alert">
-                    <h3>Faltas</h3>
-                    <div class="value" id="stat-faltas">0</div>
-                </div>
-                <div class="stat-card alert">
-                    <h3>Suspensões</h3>
-                    <div class="value" id="stat-suspensoes">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Atestados</h3>
-                    <div class="value" id="stat-atestados">0</div>
-                </div>
+                <div class="stat-card"><h3>Postos Ativos</h3><div class="value" id="stat-postos">0</div></div>
+                <div class="stat-card"><h3>Efetivo Total</h3><div class="value" id="stat-agentes">0</div></div>
+                <div class="stat-card alert"><h3>Faltas</h3><div class="value" id="stat-faltas">0</div></div>
+                <div class="stat-card alert"><h3>Suspensões</h3><div class="value" id="stat-suspensoes">0</div></div>
+                <div class="stat-card"><h3>Atestados</h3><div class="value" id="stat-atestados">0</div></div>
             </div>
-
             <div class="grid-cards">
                 <div class="stat-card" style="text-align: left; grid-column: span 2; border-bottom: none;">
                     <h3 style="margin-bottom: 15px;"><span class="material-icons" style="vertical-align: middle;">list</span> Lista de Unidades</h3>
@@ -212,10 +124,12 @@
                 <select id="func-posto-select"></select>
                 <select id="func-escala">
                     <option value="12x36">12x36</option>
+                    <option value="2x1">2x1</option>
                     <option value="5x1">5x1</option>
                     <option value="6x1">6x1</option>
+                    <option value="4x2">4x2</option>
                 </select>
-                <input type="date" id="func-inicio">
+                <input type="date" id="func-inicio" title="Data de Início do Ciclo">
                 <button class="btn-add" onclick="addAgente()">Cadastrar</button>
             </div>
             <div id="lista-equipe"></div>
@@ -246,18 +160,23 @@
                 localDB.ocorrencias = {};
                 o?.forEach(occ => localDB.ocorrencias[`${occ.agente_id}-${occ.data}`] = occ.sigla);
                 renderAll();
-            } catch (err) { console.error("Erro:", err); }
+            } catch (err) { console.error(err); }
         }
 
+        // LÓGICA DE ESCALAS COMPLETA
         function isTrabalho(data, inicio, escala) {
             const dI = new Date(inicio + 'T00:00:00');
             const dA = new Date(data + 'T00:00:00');
             const diff = Math.floor((dA - dI) / 86400000);
             if (diff < 0) return false;
-            if (escala === '12x36') return diff % 2 === 0;
-            if (escala === '5x1') return diff % 6 < 5;
-            if (escala === '6x1') return diff % 7 < 6;
-            return false;
+            switch(escala) {
+                case '12x36': return diff % 2 === 0;
+                case '2x1': return diff % 3 < 2;
+                case '5x1': return diff % 6 < 5;
+                case '6x1': return diff % 7 < 6;
+                case '4x2': return diff % 6 < 4;
+                default: return false;
+            }
         }
 
         async function addPosto() {
@@ -277,14 +196,14 @@
             const p = document.getElementById('func-posto-select').value;
             const e = document.getElementById('func-escala').value;
             const i = document.getElementById('func-inicio').value;
-            if (!n || !p || !i) return alert("Erro");
+            if (!n || !p || !i) return alert("Preencha todos os campos");
             await _supabase.from('equipe').insert([{ nome: n, posto_id: p, escala: e, inicio: i }]);
             document.getElementById('func-nome').value = '';
             sync();
         }
 
         async function removeAgente(id) {
-            if(confirm("Remover?")) { await _supabase.from('equipe').delete().eq('id', id); sync(); }
+            if(confirm("Remover agente?")) { await _supabase.from('equipe').delete().eq('id', id); sync(); }
         }
 
         async function setSigla(agenteId, data, postoId) {
@@ -300,24 +219,18 @@
             const hoje = new Date().toISOString().split('T')[0];
             const periodo = document.getElementById('filtro-periodo').value;
             
-            // Lógica de Contagem com Filtro
             let totalFaltas = 0, totalSu = 0, totalAt = 0;
-
             if (periodo === 'dia') {
                 localDB.equipe.forEach(ag => {
                     const s = localDB.ocorrencias[`${ag.id}-${hoje}`];
-                    if (s === 'F') totalFaltas++;
-                    if (s === 'SU') totalSu++;
-                    if (s === 'AT') totalAt++;
+                    if (s === 'F') totalFaltas++; if (s === 'SU') totalSu++; if (s === 'AT') totalAt++;
                 });
             } else {
-                const mesAno = hoje.substring(0, 7); // Ex: "2026-04"
+                const mesAno = hoje.substring(0, 7);
                 Object.keys(localDB.ocorrencias).forEach(key => {
                     if (key.includes(mesAno)) {
                         const s = localDB.ocorrencias[key];
-                        if (s === 'F') totalFaltas++;
-                        if (s === 'SU') totalSu++;
-                        if (s === 'AT') totalAt++;
+                        if (s === 'F') totalFaltas++; if (s === 'SU') totalSu++; if (s === 'AT') totalAt++;
                     }
                 });
             }
@@ -327,10 +240,8 @@
             document.getElementById('stat-faltas').innerText = totalFaltas;
             document.getElementById('stat-suspensoes').innerText = totalSu;
             document.getElementById('stat-atestados').innerText = totalAt;
-
             document.getElementById('lista-unidades-gestao').innerHTML = localDB.postos.map(p => `• ${p.nome}`).join('<br>');
 
-            // Dashboard Operacional
             const container = document.getElementById('cards-container');
             container.innerHTML = '';
             localDB.postos.forEach(p => {
@@ -346,7 +257,6 @@
                 container.appendChild(card);
             });
 
-            // Listas
             document.getElementById('func-posto-select').innerHTML = '<option value="">Posto...</option>' + localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
             document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => `<div class="list-item"><span>${p.nome}</span><button onclick="removePosto('${p.id}')">Excluir</button></div>`).join('');
             document.getElementById('lista-equipe').innerHTML = localDB.equipe.map(e => `<div class="list-item"><span>${e.nome}</span><button onclick="removeAgente('${e.id}')">Remover</button></div>`).join('');
