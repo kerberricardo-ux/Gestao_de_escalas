@@ -3,410 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentinela - Gestão de Escalas Operacionais</title>
+    <title>Sentinela - Gestão de Escalas</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-dark: #121212;
-            --bg-card: #1e1e1e;
-            --accent: #00e676;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --danger: #ef4444;  
-            --warning: #f97316; 
-            --info: #3b82f6;    
-            --border: #333;
-            --cor-t: #22c55e;     
-            --cor-fo: #000000;    
-            --text-fo: #ffffff;   
-            --cor-at: #06b6d4;    
-            --cor-tc: #374151;    
-            --cor-af: #8b5cf6;    
-            --cor-fg: #84cc16;    
-            --cor-hi: #16a34a;    
+            --bg-dark: #0a0a0a; --bg-card: #161616; --accent: #00e676;
+            --text-primary: #ffffff; --text-secondary: #a0a0a0;
+            --danger: #ef4444; --border: #222;
+            --cor-t: #22c55e; --cor-fo: #000000;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-primary);
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 220px;
-            background: #000;
-            padding: 20px;
-            position: fixed;
-            height: 100vh;
-            border-right: 1px solid var(--border);
-            z-index: 100;
-        }
-
-        .logo {
-            font-weight: 800;
-            font-size: 1rem;
-            color: var(--accent);
-            margin-bottom: 40px;
-            text-align: center;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-        }
-
-        .sidebar button {
-            width: 100%;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            padding: 15px;
-            text-align: left;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-radius: 8px;
-            transition: 0.3s;
-            margin-bottom: 5px;
-        }
-
-        .sidebar button:hover, .sidebar button.active-nav {
-            background: rgba(0, 230, 118, 0.1);
-            color: var(--accent);
-        }
-
-        .content { margin-left: 220px; padding: 30px; width: calc(100% - 220px); }
-
-        section { display: none; animation: fadeIn 0.3s ease; }
-        section.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .grid-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            padding: 25px;
-            border-radius: 12px;
-            border-left: 6px solid var(--danger);
-            cursor: pointer;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .card:hover { transform: translateY(-5px); }
+        body { background: var(--bg-dark); color: var(--text-primary); display: flex; }
+        .sidebar { width: 220px; background: #000; height: 100vh; position: fixed; border-right: 1px solid var(--border); padding: 20px; }
+        .sidebar h1 { color: var(--accent); font-size: 1.2rem; margin-bottom: 30px; text-align: center; }
+        .sidebar button { width: 100%; background: none; border: none; color: var(--text-secondary); padding: 15px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; border-radius: 8px; margin-bottom: 5px; }
+        .sidebar button:hover, .sidebar button.active { background: rgba(0, 230, 118, 0.1); color: var(--accent); }
+        .main { margin-left: 220px; padding: 30px; width: 100%; }
+        section { display: none; } section.active { display: block; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--bg-card); padding: 20px; border-radius: 12px; border-left: 6px solid var(--danger); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .card.active-status { border-left-color: var(--accent); }
-
-        .efetivo-info {
-            margin-top: 10px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .form-container {
-            background: var(--bg-card);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        input, select {
-            background: #2c2c2c;
-            border: 1px solid var(--border);
-            color: white;
-            padding: 12px;
-            border-radius: 5px;
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .btn-add {
-            background: var(--accent);
-            color: #000;
-            font-weight: bold;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .list-item {
-            background: var(--bg-card);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
-        .modal-content {
-            background: var(--bg-card);
-            margin: 2% auto;
-            padding: 25px;
-            width: 95%;
-            max-height: 90vh;
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-responsive { overflow: auto; flex-grow: 1; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-        th, td { border: 1px solid var(--border); padding: 10px; text-align: center; font-size: 0.85rem; }
-        th { background: #111; position: sticky; top: 0; z-index: 2; }
-
-        .cell-T { background: var(--cor-t) !important; color: white; font-weight: bold; }
-        .cell-FO { background: var(--cor-fo) !important; color: var(--text-fo) !important; }
-        .cell-F { background: var(--danger) !important; color: white; }
-        .cell-FE { background: var(--info) !important; color: white; }
-        .cell-HI { background: var(--cor-hi) !important; color: white; font-weight: bold; }
-        .cell-C { background: var(--warning) !important; color: white; }
-        .cell-AT { background: var(--cor-at) !important; color: white; }
-        .cell-TC { background: var(--cor-tc) !important; color: white; }
-        .cell-SU { background: #ea580c !important; color: white; }
-        .cell-AF { background: var(--cor-af) !important; color: white; }
-        .cell-FG { background: var(--cor-fg) !important; color: white; }
-
-        .clickable-cell:hover { filter: brightness(1.2); cursor: pointer; }
-        .close { float: right; font-size: 28px; cursor: pointer; color: var(--text-secondary); }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; padding: 10px; }
-            .sidebar .logo, .sidebar button span:not(.material-icons) { display: none; }
-            .content { margin-left: 70px; width: calc(100% - 70px); }
-        }
+        .form-group { background: var(--bg-card); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid var(--border); }
+        input, select { background: #222; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 4px; flex: 1; }
+        .btn { background: var(--accent); color: #000; font-weight: bold; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111; }
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: center; font-size: 0.8rem; min-width: 40px; }
+        th { background: #000; color: var(--accent); }
+        .cell-T { background: var(--cor-t); color: white; font-weight: bold; }
+        .cell-FO { background: var(--cor-fo); color: #555; }
+        .cell-F, .cell-SU { background: var(--danger); color: white; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; }
+        .modal-content { background: var(--bg-card); width: 95%; margin: 2% auto; padding: 25px; border-radius: 12px; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
-        <div class="logo">GUARDIAN SISTEMAS</div>
-        <button onclick="showSection('dashboard')" id="nav-dashboard" class="active-nav"><span class="material-icons">dashboard</span> <span>Dashboard</span></button>
-        <button onclick="showSection('postos')" id="nav-postos"><span class="material-icons">business</span> <span>Postos</span></button>
-        <button onclick="showSection('equipe')" id="nav-equipe"><span class="material-icons">groups</span> <span>Equipe</span></button>
+        <h1>SENTINELA</h1>
+        <button onclick="showSection('dashboard')" id="nav-dash" class="active"><span class="material-icons">dashboard</span> Dashboard</button>
+        <button onclick="showSection('postos')" id="nav-postos"><span class="material-icons">business</span> Postos</button>
+        <button onclick="showSection('equipe')" id="nav-equipe"><span class="material-icons">groups</span> Equipe</button>
     </nav>
 
-    <main class="content">
+    <div class="main">
         <section id="dashboard" class="active">
-            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Painel Operacional em Tempo Real</h2>
-                <div id="current-date" style="font-weight: bold; color: var(--accent);"></div>
-            </header>
-            <div id="cards-container" class="grid-cards"></div>
+            <h2 id="current-date" style="margin-bottom: 25px;"></h2>
+            <div id="cards-container" class="grid"></div>
         </section>
 
         <section id="postos">
-            <h2>Gestão de Postos</h2>
-            <div class="form-container">
-                <input type="text" id="posto-nome" placeholder="Nome da Unidade/Posto">
-                <button class="btn-add" onclick="addPosto()">Criar Posto</button>
+            <h2>Gerenciar Unidades</h2>
+            <div class="form-group">
+                <input type="text" id="posto-nome" placeholder="Nome do Posto (Ex: Condomínio X)">
+                <button class="btn" onclick="addPosto()">Criar Posto</button>
             </div>
-            <div id="lista-postos" class="list-container"></div>
+            <div id="lista-postos"></div>
         </section>
 
         <section id="equipe">
-            <h2>Gestão de Efetivo</h2>
-            <div class="form-container">
-                <input type="hidden" id="edit-func-id">
-                <input type="text" id="func-nome" placeholder="Nome do Agente">
+            <h2>Gerenciar Agentes</h2>
+            <div class="form-group">
+                <input type="text" id="func-nome" placeholder="Nome Completo">
                 <select id="func-posto-select"></select>
                 <select id="func-escala">
                     <option value="12x36">12x36</option>
-                    <option value="5x1">5x1 (Comercial)</option>
-                    <option value="6x1">6x1</option>
-                    <option value="4x2">4x2</option>
                     <option value="2x1">2x1</option>
+                    <option value="5x1">5x1 (Comercial)</option>
                 </select>
-                <input type="date" id="func-inicio" title="Data de Início do Ciclo">
-                <button class="btn-add" id="btn-salvar-func" onclick="saveFuncionario()">Cadastrar</button>
+                <input type="date" id="func-inicio">
+                <button class="btn" onclick="addAgente()">Cadastrar</button>
             </div>
-            <div id="lista-equipe" class="list-container"></div>
+            <div id="lista-equipe"></div>
         </section>
+    </div>
 
-        <div id="modal-escala" class="modal">
-            <div class="modal-content">
-                <div>
-                    <span class="close" onclick="closeModal()">&times;</span>
-                    <h3 id="modal-titulo" style="margin-bottom: 15px;"></h3>
-                </div>
-                <div class="table-responsive">
-                    <table id="tabela-escala">
-                        <thead><tr id="table-header"></tr></thead>
-                        <tbody id="table-body"></tbody>
-                    </table>
-                </div>
+    <div id="modal-escala" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-titulo" style="color: var(--accent); margin-bottom: 15px;"></h3>
+            <div style="overflow-x: auto; max-height: 70vh;">
+                <table>
+                    <thead><tr id="table-header"></tr></thead>
+                    <tbody id="table-body"></tbody>
+                </table>
             </div>
+            <button class="btn" onclick="closeModal()" style="margin-top: 20px;">Fechar Janela</button>
         </div>
-    </main>
+    </div>
 
     <script>
-        // --- CONFIGURAÇÃO SUPABASE ATUALIZADA ---
-        const SB_URL = 'https://wamnvdkwmaiwhkrnjgoz.supabase.co'; 
+        // CONFIGURAÇÃO SUPABASE CONECTADA AO PROJETO ATUAL
+        const SB_URL = 'https://odvzkosujluparkblizr.supabase.co'; 
         const SB_KEY = 'sb_publishable_K_SPgZndx26WP11_tt6fsw_dmsD7Zou'; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        let db = { postos: [], equipe: [], ocorrencias: {} };
+        let localDB = { postos: [], equipe: [], ocorrencias: {} };
 
-        // Sincronização inicial com o Banco
-        async function fetchAll() {
+        async function sync() {
             try {
                 const { data: p } = await _supabase.from('postos').select('*');
                 const { data: e } = await _supabase.from('equipe').select('*');
                 const { data: o } = await _supabase.from('ocorrencias').select('*');
-
-                db.postos = p || [];
-                db.equipe = e || [];
-                db.ocorrencias = {};
-                o?.forEach(occ => {
-                    db.ocorrencias[`${occ.agente_id}-${occ.data}`] = occ.sigla;
-                });
-
+                
+                localDB.postos = p || [];
+                localDB.equipe = e || [];
+                localDB.ocorrencias = {};
+                o?.forEach(occ => localDB.ocorrencias[`${occ.agente_id}-${occ.data}`] = occ.sigla);
+                
                 renderAll();
-            } catch (err) {
-                console.error("Erro ao sincronizar:", err);
-            }
+            } catch (err) { console.error("Erro na conexão:", err); }
         }
 
-        function showSection(id) {
-            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active-nav'));
-            document.getElementById(id).classList.add('active');
-            document.getElementById('nav-' + id).classList.add('active-nav');
-        }
-
-        function getStatusNoDia(agente, dataStr) {
-            const ocorrencia = db.ocorrencias[`${agente.id}-${dataStr}`];
-            if (ocorrencia) return ocorrencia;
-            return isTrabalhoBase(dataStr, agente.inicio, agente.escala) ? 'T' : 'FO';
-        }
-
-        function isTrabalhoBase(data, dataInicio, escala) {
-            const dInicio = new Date(dataInicio + 'T00:00:00');
-            const dAtual = new Date(data + 'T00:00:00');
-            const diffDays = Math.floor((dAtual - dInicio) / (1000 * 60 * 60 * 24));
-            if (diffDays < 0) return false;
-            switch(escala) {
-                case '12x36': return diffDays % 2 === 0;
-                case '5x1': return diffDays % 6 < 5;
-                case '6x1': return diffDays % 7 < 6;
-                case '4x2': return diffDays % 6 < 4;
-                case '2x1': return diffDays % 3 < 2;
-                default: return false;
-            }
-        }
-
-        function renderDashboard() {
-            const container = document.getElementById('cards-container');
-            container.innerHTML = '';
-            const hoje = new Date().toISOString().split('T')[0];
-
-            db.postos.forEach(posto => {
-                const agentesDoPosto = db.equipe.filter(e => e.posto_id === posto.id);
-                const emServicoAgora = agentesDoPosto.filter(agente => {
-                    const status = getStatusNoDia(agente, hoje);
-                    return ['T', 'HI', 'C', 'FG'].includes(status) && !['F', 'SU', 'AT', 'FO', 'FE', 'AF', 'TC'].includes(status);
-                });
-
-                const temEfetivo = emServicoAgora.length > 0;
-                const card = document.createElement('div');
-                card.className = `card ${temEfetivo ? 'active-status' : ''}`;
-                card.innerHTML = `
-                    <h3>${posto.nome}</h3>
-                    <p>${temEfetivo ? '🟢 EM SERVIÇO' : '🔴 SEM EFETIVO'}</p>
-                    <div class="efetivo-info">
-                        <strong>${emServicoAgora.length}</strong> agentes disponíveis hoje
-                    </div>
-                `;
-                card.onclick = () => openEscala(posto.id);
-                container.appendChild(card);
-            });
+        function isTrabalho(data, inicio, escala) {
+            const dI = new Date(inicio + 'T00:00:00');
+            const dA = new Date(data + 'T00:00:00');
+            const diff = Math.floor((dA - dI) / 86400000);
+            if (diff < 0) return false;
+            if (escala === '12x36') return diff % 2 === 0;
+            if (escala === '2x1') return diff % 3 < 2;
+            if (escala === '5x1') return diff % 6 < 5;
+            return false;
         }
 
         async function addPosto() {
             const nome = document.getElementById('posto-nome').value;
             if (!nome) return;
             const { error } = await _supabase.from('postos').insert([{ nome }]);
-            if (error) alert("Erro ao salvar: " + error.message);
-            else {
-                document.getElementById('posto-nome').value = '';
-                fetchAll();
-            }
+            if (error) alert("Erro ao salvar: Verifique o CORS no Supabase.");
+            else { document.getElementById('posto-nome').value = ''; sync(); }
         }
 
-        async function saveFuncionario() {
+        async function addAgente() {
             const nome = document.getElementById('func-nome').value;
             const posto_id = document.getElementById('func-posto-select').value;
             const escala = document.getElementById('func-escala').value;
             const inicio = document.getElementById('func-inicio').value;
-            if (!nome || !inicio || !posto_id) return alert("Preencha tudo");
-            const { error } = await _supabase.from('equipe').insert([{ nome, posto_id, escala, inicio }]);
-            if (error) alert("Erro ao cadastrar: " + error.message);
-            else {
-                document.getElementById('func-nome').value = "";
-                document.getElementById('func-inicio').value = "";
-                fetchAll();
-            }
+            if (!nome || !posto_id || !inicio) return alert("Preencha todos os dados");
+            await _supabase.from('equipe').insert([{ nome, posto_id, escala, inicio }]);
+            sync();
         }
 
-        async function setOcorrencia(agenteId, data, postoId) {
-            const sigla = prompt("SIGLA: T, FO, F, C, HI, AT, SU, FE, L (Limpar)").toUpperCase();
-            if (!sigla) return;
-            if (sigla === 'L') {
-                await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data: data });
-            } else {
-                await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data: data, sigla: sigla });
-            }
-            await fetchAll();
+        async function setSigla(agenteId, data, postoId) {
+            const s = prompt("SIGLA (T, FO, F, SU, HI, C, L para Limpar):").toUpperCase();
+            if (!s) return;
+            if (s === 'L') await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data });
+            else await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data, sigla: s });
+            await sync();
             openEscala(postoId);
         }
 
+        function renderAll() {
+            const hoje = new Date().toISOString().split('T')[0];
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+
+            localDB.postos.forEach(p => {
+                const agentes = localDB.equipe.filter(e => e.posto_id === p.id);
+                const emServico = agentes.filter(a => {
+                    const status = localDB.ocorrencias[`${a.id}-${hoje}`] || (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
+                    return ['T', 'HI', 'C'].includes(status) && !['F', 'SU', 'FO'].includes(status);
+                });
+
+                const card = document.createElement('div');
+                card.className = `card ${emServico.length > 0 ? 'active-status' : ''}`;
+                card.innerHTML = `<h3>${p.nome}</h3><p>${emServico.length > 0 ? '🟢 OPERACIONAL' : '🔴 VAGO'}</p><small>${emServico.length} Agentes em serviço</small>`;
+                card.onclick = () => openEscala(p.id);
+                container.appendChild(card);
+            });
+
+            document.getElementById('func-posto-select').innerHTML = '<option value="">Selecione o Posto...</option>' + localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => `<div class="form-group">📍 ${p.nome}</div>`).join('');
+            document.getElementById('lista-equipe').innerHTML = localDB.equipe.map(e => `<div class="form-group">👤 ${e.nome} (${e.escala})</div>`).join('');
+        }
+
         function openEscala(postoId) {
-            const modal = document.getElementById('modal-escala');
-            const header = document.getElementById('table-header');
-            const body = document.getElementById('table-body');
-            const posto = db.postos.find(p => p.id === postoId);
+            const posto = localDB.postos.find(p => p.id === postoId);
+            document.getElementById('modal-titulo').innerText = "Escala Mensal: " + posto.nome;
             const agora = new Date();
-            const diasNoMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).getDate();
-            document.getElementById('modal-titulo').innerText = `Escala - ${posto.nome}`;
-            header.innerHTML = '<th>AGENTE</th>' + Array.from({length: diasNoMes}, (_, i) => `<th>${i+1}</th>`).join('');
-            body.innerHTML = db.equipe.filter(e => e.posto_id === postoId).map(f => {
-                let row = `<tr><td style="text-align:left"><strong>${f.nome}</strong></td>`;
-                for(let d=1; d<=diasNoMes; d++) {
+            const diasMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).getDate();
+            document.getElementById('table-header').innerHTML = '<th>Agente</th>' + Array.from({length: diasMes}, (_, i) => `<th>${i+1}</th>`).join('');
+            document.getElementById('table-body').innerHTML = localDB.equipe.filter(e => e.posto_id === postoId).map(a => {
+                let r = `<tr><td style="text-align:left; background: #000;"><b>${a.nome}</b></td>`;
+                for(let d=1; d<=diasMes; d++) {
                     const dt = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                    const s = getStatusNoDia(f, dt);
-                    row += `<td class="cell-${s} clickable-cell" onclick="setOcorrencia('${f.id}', '${dt}', '${postoId}')">${s}</td>`;
+                    const s = localDB.ocorrencias[`${a.id}-${dt}`] || (isTrabalho(dt, a.inicio, a.escala) ? 'T' : 'FO');
+                    r += `<td class="cell-${s}" onclick="setSigla('${a.id}', '${dt}', '${postoId}')" style="cursor:pointer">${s}</td>`;
                 }
-                return row + '</tr>';
+                return r + '</tr>';
             }).join('');
-            modal.style.display = 'block';
+            document.getElementById('modal-escala').style.display = 'block';
         }
 
-        function renderListas() {
-            document.getElementById('lista-postos').innerHTML = db.postos.map(p => `<div class="list-item"><span>${p.nome}</span></div>`).join('');
-            document.getElementById('lista-equipe').innerHTML = db.equipe.map(e => `<div class="list-item"><span>${e.nome}</span></div>`).join('');
-            const s = document.getElementById('func-posto-select');
-            s.innerHTML = '<option value="">Selecione o Posto...</option>' + db.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-        }
-
-        function renderAll() { renderDashboard(); renderListas(); }
         function closeModal() { document.getElementById('modal-escala').style.display = 'none'; }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-            fetchAll();
-        });
+        function showSection(id) { 
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('nav-' + (id==='dashboard'?'dash':id)).classList.add('active');
+        }
+
+        window.onload = () => {
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+            sync();
+        }
     </script>
 </body>
 </html>
