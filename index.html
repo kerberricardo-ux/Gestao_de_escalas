@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Seus estilos existentes permanecem iguais... */
         :root {
             --bg-dark: #121212;
             --bg-card: #1e1e1e;
@@ -18,7 +17,6 @@
             --warning: #f97316; 
             --info: #3b82f6;    
             --border: #333;
-            
             --cor-t: #22c55e;     
             --cor-fo: #000000;    
             --cor-f: #ef4444;     
@@ -32,7 +30,6 @@
             --cor-tc: #374151;    
         }
 
-        /* Seus estilos CSS existentes... (mantidos iguais) */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-primary); display: flex; min-height: 100vh; }
 
@@ -70,7 +67,6 @@
             min-height: 120px;
         }
         
-        /* NOVOS ESTILOS PARA ALERTA DE MÍNIMO */
         .card.minimo-insuficiente {
             border-left-color: var(--warning) !important;
             box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
@@ -96,7 +92,6 @@
             text-transform: uppercase;
         }
         
-        /* ALERTA DE MÍNIMO NO CARD-COUNT */
         .card-count.minimo-alerta {
             background: rgba(249, 115, 22, 0.2);
             color: var(--warning);
@@ -106,19 +101,43 @@
 
         .form-container { background: var(--bg-card); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
         input, select { background: #2c2c2c; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 5px; flex: 1; min-width: 150px; }
-        .btn-add, .btn-edit { background: var(--accent); color: #000; font-weight: bold; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; }
-        .btn-edit { background: var(--info); padding: 8px 15px; font-size: 0.8rem; }
+        .btn-add, .btn-edit, .btn-save, .btn-cancel { 
+            background: var(--accent); 
+            color: #000; 
+            font-weight: bold; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 0 5px;
+        }
+        .btn-edit, .btn-save { background: var(--info); }
+        .btn-cancel { background: var(--warning); color: white; }
+        .btn-remove { background: var(--danger); color: white; }
 
         .list-item { background: var(--bg-card); padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        /* NOVO MODAL PARA EDIÇÃO DE AGENTE */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
-        .modal-content { background: var(--bg-card); margin: 2% auto; padding: 25px; width: 95%; max-height: 90vh; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-content { 
+            background: var(--bg-card); 
+            margin: 5% auto; 
+            padding: 30px; 
+            width: 90%; 
+            max-width: 500px; 
+            max-height: 80vh; 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .modal-edit-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; }
 
         .table-responsive { overflow: auto; flex-grow: 1; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; min-width: 1200px; }
         th, td { border: 1px solid var(--border); padding: 10px; text-align: center; font-size: 0.85rem; }
         th { background: #111; position: sticky; top: 0; z-index: 2; }
 
-        /* Suas classes de célula existentes... */
         .cell-T { background: var(--cor-t) !important; color: white; font-weight: bold; }
         .cell-FO { background: var(--cor-fo) !important; color: #555; }
         .cell-F { background: var(--cor-f) !important; color: white; }
@@ -136,17 +155,23 @@
 </head>
 <body>
 
-    <!-- Sidebar igual -->
     <nav class="sidebar">
         <div class="logo">SENTINELA GESTÃO DE ESCALAS</div>
-        <button onclick="showSection('dashboard_gerencial')" id="nav-dashboard_gerencial" class="active-nav"><span class="material-icons">analytics</span> <span>Gerencial</span></button>
-        <button onclick="showSection('dashboard')" id="nav-dashboard"><span class="material-icons">monitor_heart</span> <span>Tempo Real</span></button>
-        <button onclick="showSection('postos')" id="nav-postos"><span class="material-icons">business</span> <span>Postos</span></button>
-        <button onclick="showSection('equipe')" id="nav-equipe"><span class="material-icons">groups</span> <span>Equipe</span></button>
+        <button onclick="showSection('dashboard_gerencial')" id="nav-dashboard_gerencial" class="active-nav">
+            <span class="material-icons">analytics</span> <span>Gerencial</span>
+        </button>
+        <button onclick="showSection('dashboard')" id="nav-dashboard">
+            <span class="material-icons">monitor_heart</span> <span>Tempo Real</span>
+        </button>
+        <button onclick="showSection('postos')" id="nav-postos">
+            <span class="material-icons">business</span> <span>Postos</span>
+        </button>
+        <button onclick="showSection('equipe')" id="nav-equipe">
+            <span class="material-icons">groups</span> <span>Equipe</span>
+        </button>
     </nav>
 
     <main class="content">
-        <!-- Seções dashboard_gerencial e dashboard iguais -->
         <section id="dashboard_gerencial" class="active">
             <div class="stats-header">
                 <h2>Resumo Gerencial</h2>
@@ -178,7 +203,6 @@
             <div id="cards-container" class="grid-cards"></div>
         </section>
 
-        <!-- POSTOS - COM CAMPO MÍNIMO NOVO -->
         <section id="postos">
             <h2>Gestão de Unidades</h2>
             <div class="form-container">
@@ -189,7 +213,6 @@
             <div id="lista-postos"></div>
         </section>
 
-        <!-- Equipe igual -->
         <section id="equipe">
             <h2>Gestão de Agentes</h2>
             <div class="form-container">
@@ -208,11 +231,45 @@
             <div id="lista-equipe"></div>
         </section>
 
-        <!-- Modal igual -->
+        <!-- MODAL ESCALA -->
         <div id="modal-escala" class="modal">
             <div class="modal-content">
                 <div><span class="close" onclick="closeModal()">&times;</span><h3 id="modal-titulo"></h3></div>
-                <div class="table-responsive"><table id="tabela-escala"><thead><tr id="table-header"></tr></thead><tbody id="table-body"></tbody></table></div>
+                <div class="table-responsive">
+                    <table id="tabela-escala">
+                        <thead><tr id="table-header"></tr></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOVO MODAL EDIÇÃO AGENTE -->
+        <div id="modal-edit-agente" class="modal">
+            <div class="modal-content">
+                <div>
+                    <span class="close" onclick="closeEditModal()">&times;</span>
+                    <h3 id="modal-edit-titulo">Editar Agente</h3>
+                </div>
+                <form class="modal-edit-form" id="form-edit-agente">
+                    <input type="hidden" id="edit-agente-id">
+                    <input type="text" id="edit-agente-nome" placeholder="Nome Completo" required>
+                    <select id="edit-agente-posto" required>
+                        <option value="">Selecione o Posto...</option>
+                    </select>
+                    <select id="edit-agente-escala" required>
+                        <option value="12x36">12x36</option>
+                        <option value="2x1">2x1</option>
+                        <option value="5x1">5x1</option>
+                        <option value="6x1">6x1</option>
+                        <option value="4x2">4x2</option>
+                    </select>
+                    <input type="date" id="edit-agente-inicio" required>
+                </form>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancelar</button>
+                    <button type="button" class="btn-save" onclick="saveEditAgente()">Salvar</button>
+                </div>
             </div>
         </div>
     </main>
@@ -223,6 +280,7 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let localDB = { postos: [], equipe: [], ocorrencias: {} };
+        let agenteEditando = null;
 
         async function sync() {
             try {
@@ -237,7 +295,6 @@
             } catch (err) { console.error(err); }
         }
 
-        // Função isTrabalho igual
         function isTrabalho(data, inicio, escala) {
             const dI = new Date(inicio + 'T00:00:00');
             const dA = new Date(data + 'T00:00:00');
@@ -253,7 +310,6 @@
             }
         }
 
-        // FUNÇÃO MODIFICADA: addPosto com campo mínimo
         async function addPosto() {
             const n = document.getElementById('posto-nome').value;
             const m = parseInt(document.getElementById('posto-minimo').value) || 1;
@@ -266,7 +322,6 @@
             sync();
         }
 
-        // NOVA FUNÇÃO: Editar mínimo do posto
         async function editMinimo(postoId) {
             const posto = localDB.postos.find(p => p.id === postoId);
             const novoMinimo = prompt(`Mínimo atual: ${posto.minimo}\nDigite novo mínimo (1-50):`, posto.minimo);
@@ -277,9 +332,11 @@
             sync();
         }
 
-        // Funções existentes
         async function removePosto(id) {
-            if(confirm("Excluir posto?")) { await _supabase.from('postos').delete().eq('id', id); sync(); }
+            if(confirm("Excluir posto?")) { 
+                await _supabase.from('postos').delete().eq('id', id); 
+                sync(); 
+            }
         }
 
         async function addAgente() {
@@ -290,14 +347,75 @@
             if (!n || !p || !i) return alert("Preencha todos os campos");
             await _supabase.from('equipe').insert([{ nome: n, posto_id: p, escala: e, inicio: i }]);
             document.getElementById('func-nome').value = '';
+            document.getElementById('func-posto-select').value = '';
+            document.getElementById('func-inicio').value = '';
             sync();
         }
 
-        async function removeAgente(id) {
-            if(confirm("Remover agente?")) { await _supabase.from('equipe').delete().eq('id', id); sync(); }
+        // NOVA FUNÇÃO: Editar agente
+        function editAgente(id) {
+            agenteEditando = localDB.equipe.find(a => a.id === id);
+            if (!agenteEditando) return;
+
+            document.getElementById('edit-agente-id').value = agenteEditando.id;
+            document.getElementById('edit-agente-nome').value = agenteEditando.nome;
+            document.getElementById('edit-agente-posto').value = agenteEditando.posto_id;
+            document.getElementById('edit-agente-escala').value = agenteEditando.escala;
+            document.getElementById('edit-agente-inicio').value = agenteEditando.inicio;
+            document.getElementById('modal-edit-titulo').textContent = `Editando: ${agenteEditando.nome}`;
+            
+            // Preenche select de postos
+            const postoSelect = document.getElementById('edit-agente-posto');
+            postoSelect.innerHTML = '<option value="">Selecione o Posto...</option>' + 
+                localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            postoSelect.value = agenteEditando.posto_id;
+            
+            document.getElementById('modal-edit-agente').style.display = 'block';
         }
 
-        // FUNÇÃO CORRIGIDA E MELHORADA: setSigla com Backspace automático e quebras de linha corretas
+        // NOVA FUNÇÃO: Salvar edição de agente
+        async function saveEditAgente() {
+            const id = document.getElementById('edit-agente-id').value;
+            const nome = document.getElementById('edit-agente-nome').value;
+            const posto_id = document.getElementById('edit-agente-posto').value;
+            const escala = document.getElementById('edit-agente-escala').value;
+            const inicio = document.getElementById('edit-agente-inicio').value;
+
+            if (!nome || !posto_id || !escala || !inicio) {
+                return alert('Preencha todos os campos');
+            }
+
+            try {
+                await _supabase.from('equipe').update({ 
+                    nome, 
+                    posto_id, 
+                    escala, 
+                    inicio 
+                }).eq('id', id);
+
+                closeEditModal();
+                sync();
+                alert('Agente atualizado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                alert('Erro ao salvar agente');
+            }
+        }
+
+        // NOVA FUNÇÃO: Fechar modal de edição
+        function closeEditModal() {
+            document.getElementById('modal-edit-agente').style.display = 'none';
+            agenteEditando = null;
+            document.getElementById('form-edit-agente').reset();
+        }
+
+        async function removeAgente(id) {
+            if(confirm("Remover agente?")) { 
+                await _supabase.from('equipe').delete().eq('id', id); 
+                sync(); 
+            }
+        }
+
         async function setSigla(agenteId, data, postoId) {
             const mensagem = `DIGITE A SIGLA:\n\n` +
                 `T  = Trabalho\n` +
@@ -312,9 +430,8 @@
                 `L  = Limpar\n\n` +
                 `(Pressione Backspace com campo vazio para LIMPAR)`;
 
-            const s = prompt(mensagem).toUpperCase().trim();
+            const s = prompt(mensagem)?.toUpperCase().trim();
             
-            // Se vazio ou apenas Backspace foi pressionado, trata como "L" (Limpar)
             if (!s || s === '') {
                 await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data });
                 await sync();
@@ -332,15 +449,15 @@
             openEscala(postoId);
         }
 
-        // FUNÇÃO renderAll MODIFICADA com verificação de mínimo
         function renderAll() {
             const hoje = new Date().toISOString().split('T')[0];
-            const periodo = document.getElementById('filtro-periodo').value;
             
             let totalFaltas = 0, totalSu = 0, totalAt = 0;
             localDB.equipe.forEach(ag => {
                 const s = localDB.ocorrencias[`${ag.id}-${hoje}`];
-                if (s === 'F') totalFaltas++; if (s === 'SU') totalSu++; if (s === 'AT') totalAt++;
+                if (s === 'F') totalFaltas++; 
+                if (s === 'SU') totalSu++; 
+                if (s === 'AT') totalAt++;
             });
 
             document.getElementById('stat-postos').innerText = localDB.postos.length;
@@ -348,21 +465,22 @@
             document.getElementById('stat-faltas').innerText = totalFaltas;
             document.getElementById('stat-suspensoes').innerText = totalSu;
             document.getElementById('stat-atestados').innerText = totalAt;
-            document.getElementById('lista-unidades-gestao').innerHTML = localDB.postos.map(p => `• ${p.nome} (${p.minimo} mín.)`).join('<br>');
+            document.getElementById('lista-unidades-gestao').innerHTML = 
+                localDB.postos.map(p => `• ${p.nome} (${p.minimo} mín.)`).join('<br>');
 
             const container = document.getElementById('cards-container');
             container.innerHTML = '';
             
             localDB.postos.forEach(p => {
                 const ags = localDB.equipe.filter(e => e.posto_id === p.id);
-                const minimo = p.minimo || 1; // Default 1 se não definido
+                const minimo = p.minimo || 1;
                 
                 const servicoNoPosto = ags.filter(a => {
-                    const siglaAtual = localDB.ocorrencias[`${a.id}-${hoje}`] || (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
+                    const siglaAtual = localDB.ocorrencias[`${a.id}-${hoje}`] || 
+                        (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
                     return ['T', 'HI', 'C', 'FG'].includes(siglaAtual);
                 });
 
-                // VERIFICAÇÃO DE MÍNIMO
                 const temMinimoSuficiente = servicoNoPosto.length >= minimo;
                 const classesCard = [
                     'card',
@@ -373,7 +491,6 @@
                 const card = document.createElement('div');
                 card.className = classesCard;
                 
-                // TEXTO DO STATUS COM MÍNIMO
                 let statusText = servicoNoPosto.length > 0 ? '🟢 OPERACIONAL' : '🔴 VAGO';
                 if (!temMinimoSuficiente) {
                     statusText = `⚠️ ABAIXO DO MÍNIMO (${minimo})`;
@@ -391,52 +508,70 @@
                 container.appendChild(card);
             });
 
-            // Preenche selects e listas
-            document.getElementById('func-posto-select').innerHTML = '<option value="">Posto...</option>' + localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            // Preenche selects
+            const postoSelect = document.getElementById('func-posto-select');
+            postoSelect.innerHTML = '<option value="">Posto...</option>' + 
+                localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+
+            // Lista de postos
             document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => {
-                const statusMinimo = localDB.equipe.filter(e => e.posto_id === p.id).filter(a => {
+                const efetivoNoPosto = localDB.equipe.filter(e => e.posto_id === p.id).filter(a => {
                     const hoje = new Date().toISOString().split('T')[0];
-                    const siglaAtual = localDB.ocorrencias[`${a.id}-${hoje}`] || (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
+                    const siglaAtual = localDB.ocorrencias[`${a.id}-${hoje}`] || 
+                        (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
                     return ['T', 'HI', 'C', 'FG'].includes(siglaAtual);
-                }).length >= (p.minimo || 1) ? '✅' : '⚠️';
+                }).length;
+                
+                const statusMinimo = efetivoNoPosto >= (p.minimo || 1) ? '✅' : '⚠️';
                 return `<div class="list-item">
                     <span>${p.nome} <strong>(${p.minimo || 1} mín.) ${statusMinimo}</strong></span>
                     <div>
                         <button class="btn-edit" onclick="editMinimo('${p.id}')" title="Editar mínimo">Editar Mín.</button>
-                        <button onclick="removePosto('${p.id}')" style="background: var(--danger); color: white; margin-left: 5px;">Excluir</button>
+                        <button class="btn-remove" onclick="removePosto('${p.id}')">Excluir</button>
                     </div>
                 </div>`;
             }).join('');
-            
+
+            // LISTA DE AGENTES COM BOTÃO EDITAR
             document.getElementById('lista-equipe').innerHTML = localDB.equipe.map(e => {
                 const posto = localDB.postos.find(p => p.id === e.posto_id);
                 return `<div class="list-item">
-                    <span>${e.nome} - ${posto ? posto.nome : 'Sem posto'}</span>
-                    <button onclick="removeAgente('${e.id}')" style="background: var(--danger); color: white;">Remover</button>
+                    <span>${e.nome} - ${posto ? posto.nome : 'Sem posto'} (${e.escala} | ${e.inicio})</span>
+                    <div>
+                        <button class="btn-edit" onclick="editAgente('${e.id}')" title="Editar agente">Editar</button>
+                        <button class="btn-remove" onclick="removeAgente('${e.id}')">Remover</button>
+                    </div>
                 </div>`;
             }).join('');
         }
 
-        // Funções modais iguais
         function openEscala(postoId) {
             const p = localDB.postos.find(x => x.id === postoId);
             document.getElementById('modal-titulo').innerText = `Escala: ${p.nome} (Mínimo: ${p.minimo || 1})`;
             const agora = new Date();
             const diasMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).getDate();
-            document.getElementById('table-header').innerHTML = '<th>AGENTE</th>' + Array.from({length: diasMes}, (_, i) => `<th>${i+1}</th>`).join('');
-            document.getElementById('table-body').innerHTML = localDB.equipe.filter(e => e.posto_id === postoId).map(a => {
-                let r = `<tr><td style="text-align:left"><strong>${a.nome}</strong></td>`;
-                for(let d=1; d<=diasMes; d++) {
-                    const dt = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                    const s = localDB.ocorrencias[`${a.id}-${dt}`] || (isTrabalho(dt, a.inicio, a.escala) ? 'T' : 'FO');
-                    r += `<td class="cell-${s}" onclick="setSigla('${a.id}', '${dt}', '${postoId}')" style="cursor:pointer">${s}</td>`;
-                }
-                return r + '</tr>';
-            }).join('');
+            document.getElementById('table-header').innerHTML = 
+                '<th>AGENTE</th>' + Array.from({length: diasMes}, (_, i) => `<th>${i+1}</th>`).join('');
+            
+            document.getElementById('table-body').innerHTML = localDB.equipe
+                .filter(e => e.posto_id === postoId)
+                .map(a => {
+                    let r = `<tr><td style="text-align:left"><strong>${a.nome}</strong></td>`;
+                    for(let d=1; d<=diasMes; d++) {
+                        const dt = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                        const s = localDB.ocorrencias[`${a.id}-${dt}`] || 
+                            (isTrabalho(dt, a.inicio, a.escala) ? 'T' : 'FO');
+                        r += `<td class="cell-${s}" onclick="setSigla('${a.id}', '${dt}', '${postoId}')" style="cursor:pointer">${s}</td>`;
+                    }
+                    return r + '</tr>';
+                }).join('');
             document.getElementById('modal-escala').style.display = 'block';
         }
 
-        function closeModal() { document.getElementById('modal-escala').style.display = 'none'; }
+        function closeModal() { 
+            document.getElementById('modal-escala').style.display = 'none'; 
+        }
+
         function showSection(id) { 
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active-nav'));
@@ -444,8 +579,19 @@
             document.getElementById('nav-' + id).classList.add('active-nav');
         }
 
+        // Fechar modais ao clicar fora
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
         window.onload = () => {
-            document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+            document.getElementById('current-date').innerText = 
+                new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
             sync();
         }
     </script>
