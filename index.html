@@ -117,28 +117,107 @@
 
         .list-item { background: var(--bg-card); padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
-        /* NOVO MODAL PARA EDIÇÃO DE AGENTE */
+        /* MODAL PARA EDIÇÃO DE AGENTE */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
         .modal-content { 
             background: var(--bg-card); 
-            margin: 5% auto; 
-            padding: 30px; 
-            width: 90%; 
-            max-width: 500px; 
-            max-height: 80vh; 
+            margin: 2% auto; 
+            padding: 20px; 
+            width: 95%; 
+            max-width: 1400px; 
+            max-height: 95vh; 
             border-radius: 12px; 
             display: flex; 
             flex-direction: column; 
+            overflow: hidden;
         }
+        
+        /* TÍTULO DO MODAL ESCALA OTIMIZADO */
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        
         .modal-edit-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
         .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; }
 
-        .table-responsive { overflow: auto; flex-grow: 1; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-        th, td { border: 1px solid var(--border); padding: 10px; text-align: center; font-size: 0.85rem; }
-        th { background: #111; position: sticky; top: 0; z-index: 2; }
+        /* TABELA ESCALA OTIMIZADA PARA MODAL */
+        .table-responsive { 
+            flex: 1; 
+            overflow: auto; 
+            border: 1px solid var(--border); 
+            border-radius: 6px;
+            max-height: 70vh;
+        }
+        
+        /* TABELA COM LAYOUT FIXO E RESPONSIVO */
+        #tabela-escala {
+            width: 100%; 
+            border-collapse: collapse; 
+            table-layout: fixed;
+            min-width: 0; /* Remove min-width fixo */
+        }
+        
+        /* CABEÇALHO FIXO */
+        #tabela-escala th { 
+            background: #111; 
+            position: sticky; 
+            top: 0; 
+            z-index: 10; 
+            border: 1px solid var(--border); 
+            padding: 6px 4px; /* Padding reduzido */
+            font-size: 0.75rem; /* Font-size menor */
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* CÉLULAS OTIMIZADAS */
+        #tabela-escala td { 
+            border: 1px solid var(--border); 
+            padding: 4px 2px; /* Padding bem reduzido */
+            text-align: center; 
+            font-size: 0.7rem; /* Font-size ainda menor */
+            font-weight: 600;
+            height: 32px; /* Altura fixa para uniformidade */
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
+            position: relative;
+        }
+        
+        /* NOME DO AGENTE (PRIMEIRA COLUNA) */
+        #tabela-escala td:first-child {
+            text-align: left;
+            font-weight: bold;
+            padding-left: 8px;
+            font-size: 0.8rem;
+            position: sticky;
+            left: 0;
+            background: var(--bg-card);
+            z-index: 5;
+            min-width: 140px;
+            width: 140px;
+            max-width: 140px;
+        }
+        
+        /* COLUNAS DE DIAS (LARGURA FIXA) */
+        #tabela-escala th:not(:first-child),
+        #tabela-escala td:not(:first-child) {
+            width: calc((100% - 140px) / 31); /* Divide o espaço restante pelos 31 dias */
+            min-width: 28px;
+            max-width: 32px;
+        }
 
-        .cell-T { background: var(--cor-t) !important; color: white; font-weight: bold; }
+        /* CORES DAS CÉLULAS */
+        .cell-T { background: var(--cor-t) !important; color: white; }
         .cell-FO { background: var(--cor-fo) !important; color: #555; }
         .cell-F { background: var(--cor-f) !important; color: white; }
         .cell-SU { background: var(--cor-su) !important; color: white; }
@@ -150,7 +229,28 @@
         .cell-AF { background: var(--cor-af) !important; color: white; }
         .cell-TC { background: var(--cor-tc) !important; color: white; }
 
-        .close { float: right; font-size: 28px; cursor: pointer; color: var(--text-secondary); }
+        .close { 
+            font-size: 24px; 
+            cursor: pointer; 
+            color: var(--text-secondary); 
+            font-weight: bold;
+            line-height: 1;
+            padding: 4px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        
+        .close:hover { background: rgba(255,255,255,0.1); }
+
+        /* RESPONSIVIDADE PARA TELAS MENORES */
+        @media (max-width: 768px) {
+            .content { margin-left: 0; padding: 15px; width: 100%; }
+            .sidebar { transform: translateX(-100%); }
+            #tabela-escala td:first-child { min-width: 120px; width: 120px; font-size: 0.75rem; }
+            #tabela-escala th:not(:first-child),
+            #tabela-escala td:not(:first-child) { width: calc((100% - 120px) / 31); min-width: 24px; }
+            #tabela-escala td { padding: 2px 1px; font-size: 0.65rem; height: 28px; }
+        }
     </style>
 </head>
 <body>
@@ -231,10 +331,13 @@
             <div id="lista-equipe"></div>
         </section>
 
-        <!-- MODAL ESCALA -->
+        <!-- MODAL ESCALA OTIMIZADO -->
         <div id="modal-escala" class="modal">
             <div class="modal-content">
-                <div><span class="close" onclick="closeModal()">&times;</span><h3 id="modal-titulo"></h3></div>
+                <div class="modal-header">
+                    <h3 id="modal-titulo" style="margin: 0;">Escala</h3>
+                    <span class="close" onclick="closeModal()">&times;</span>
+                </div>
                 <div class="table-responsive">
                     <table id="tabela-escala">
                         <thead><tr id="table-header"></tr></thead>
@@ -244,12 +347,12 @@
             </div>
         </div>
 
-        <!-- NOVO MODAL EDIÇÃO AGENTE -->
+        <!-- MODAL EDIÇÃO AGENTE -->
         <div id="modal-edit-agente" class="modal">
             <div class="modal-content">
-                <div>
-                    <span class="close" onclick="closeEditModal()">&times;</span>
+                <div class="modal-header">
                     <h3 id="modal-edit-titulo">Editar Agente</h3>
+                    <span class="close" onclick="closeEditModal()">&times;</span>
                 </div>
                 <form class="modal-edit-form" id="form-edit-agente">
                     <input type="hidden" id="edit-agente-id">
@@ -324,7 +427,7 @@
 
         async function editMinimo(postoId) {
             const posto = localDB.postos.find(p => p.id === postoId);
-            const novoMinimo = prompt(`Mínimo atual: ${posto.minimo}\nDigite novo mínimo (1-50):`, posto.minimo);
+            const novoMinimo = prompt(`Mínimo atual: ${posto.minimo}\\nDigite novo mínimo (1-50):`, posto.minimo);
             const m = parseInt(novoMinimo);
             if (isNaN(m) || m < 1 || m > 50) return alert("Mínimo inválido (1-50)");
             
@@ -352,7 +455,6 @@
             sync();
         }
 
-        // NOVA FUNÇÃO: Editar agente
         function editAgente(id) {
             agenteEditando = localDB.equipe.find(a => a.id === id);
             if (!agenteEditando) return;
@@ -364,7 +466,6 @@
             document.getElementById('edit-agente-inicio').value = agenteEditando.inicio;
             document.getElementById('modal-edit-titulo').textContent = `Editando: ${agenteEditando.nome}`;
             
-            // Preenche select de postos
             const postoSelect = document.getElementById('edit-agente-posto');
             postoSelect.innerHTML = '<option value="">Selecione o Posto...</option>' + 
                 localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
@@ -373,7 +474,6 @@
             document.getElementById('modal-edit-agente').style.display = 'block';
         }
 
-        // NOVA FUNÇÃO: Salvar edição de agente
         async function saveEditAgente() {
             const id = document.getElementById('edit-agente-id').value;
             const nome = document.getElementById('edit-agente-nome').value;
@@ -402,7 +502,6 @@
             }
         }
 
-        // NOVA FUNÇÃO: Fechar modal de edição
         function closeEditModal() {
             document.getElementById('modal-edit-agente').style.display = 'none';
             agenteEditando = null;
@@ -417,17 +516,17 @@
         }
 
         async function setSigla(agenteId, data, postoId) {
-            const mensagem = `DIGITE A SIGLA:\n\n` +
-                `T  = Trabalho\n` +
-                `FO = Folga\n` +
-                `FG = Folguista\n` +
-                `F  = Falta\n` +
-                `SU = Suspensão\n` +
-                `HI = Hora Extra\n` +
-                `C  = Cobertura\n` +
-                `AT = Atestado\n` +
-                `FE = Férias\n` +
-                `L  = Limpar\n\n` +
+            const mensagem = `DIGITE A SIGLA:\\n\\n` +
+                `T  = Trabalho\\n` +
+                `FO = Folga\\n` +
+                `FG = Folguista\\n` +
+                `F  = Falta\\n` +
+                `SU = Suspensão\\n` +
+                `HI = Hora Extra\\n` +
+                `C  = Cobertura\\n` +
+                `AT = Atestado\\n` +
+                `FE = Férias\\n` +
+                `L  = Limpar\\n\\n` +
                 `(Pressione Backspace com campo vazio para LIMPAR)`;
 
             const s = prompt(mensagem)?.toUpperCase().trim();
@@ -508,12 +607,10 @@
                 container.appendChild(card);
             });
 
-            // Preenche selects
             const postoSelect = document.getElementById('func-posto-select');
             postoSelect.innerHTML = '<option value="">Posto...</option>' + 
                 localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
 
-            // Lista de postos
             document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => {
                 const efetivoNoPosto = localDB.equipe.filter(e => e.posto_id === p.id).filter(a => {
                     const hoje = new Date().toISOString().split('T')[0];
@@ -532,7 +629,6 @@
                 </div>`;
             }).join('');
 
-            // LISTA DE AGENTES COM BOTÃO EDITAR
             document.getElementById('lista-equipe').innerHTML = localDB.equipe.map(e => {
                 const posto = localDB.postos.find(p => p.id === e.posto_id);
                 return `<div class="list-item">
@@ -548,8 +644,10 @@
         function openEscala(postoId) {
             const p = localDB.postos.find(x => x.id === postoId);
             document.getElementById('modal-titulo').innerText = `Escala: ${p.nome} (Mínimo: ${p.minimo || 1})`;
+            
             const agora = new Date();
             const diasMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).getDate();
+            
             document.getElementById('table-header').innerHTML = 
                 '<th>AGENTE</th>' + Array.from({length: diasMes}, (_, i) => `<th>${i+1}</th>`).join('');
             
@@ -561,11 +659,18 @@
                         const dt = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                         const s = localDB.ocorrencias[`${a.id}-${dt}`] || 
                             (isTrabalho(dt, a.inicio, a.escala) ? 'T' : 'FO');
-                        r += `<td class="cell-${s}" onclick="setSigla('${a.id}', '${dt}', '${postoId}')" style="cursor:pointer">${s}</td>`;
+                        r += `<td class="cell-${s}" onclick="setSigla('${a.id}', '${dt}', '${postoId}')">${s}</td>`;
                     }
                     return r + '</tr>';
                 }).join('');
+            
             document.getElementById('modal-escala').style.display = 'block';
+            
+            // Foco automático na tabela para melhor UX
+            setTimeout(() => {
+                const tabela = document.getElementById('tabela-escala');
+                tabela.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
         }
 
         function closeModal() { 
@@ -579,7 +684,6 @@
             document.getElementById('nav-' + id).classList.add('active-nav');
         }
 
-        // Fechar modais ao clicar fora
         window.onclick = function(event) {
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
