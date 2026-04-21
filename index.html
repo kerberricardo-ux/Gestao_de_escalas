@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* Seus estilos existentes permanecem iguais... */
         :root {
             --bg-dark: #121212;
             --bg-card: #1e1e1e;
@@ -31,6 +32,7 @@
             --cor-tc: #374151;    
         }
 
+        /* Seus estilos CSS existentes... (mantidos iguais) */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-primary); display: flex; min-height: 100vh; }
 
@@ -44,7 +46,6 @@
         section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Dashboard */
         .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: var(--bg-card); padding: 20px; border-radius: 12px; text-align: center; border-bottom: 4px solid var(--accent); }
@@ -55,7 +56,6 @@
 
         .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         
-        /* Ajuste do Card para posicionamento inferior */
         .card { 
             background: var(--bg-card); 
             padding: 25px; 
@@ -63,21 +63,31 @@
             border-left: 6px solid var(--danger); 
             cursor: pointer; 
             transition: 0.2s; 
-            position: relative; /* Necessário para posicionar a etiqueta */
+            position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
             min-height: 120px;
         }
+        
+        /* NOVOS ESTILOS PARA ALERTA DE MÍNIMO */
+        .card.minimo-insuficiente {
+            border-left-color: var(--warning) !important;
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+            animation: pulse-warning 2s infinite;
+        }
+        
+        @keyframes pulse-warning {
+            0%, 100% { box-shadow: 0 0 20px rgba(249, 115, 22, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.6); }
+        }
+        
         .card.active-status { border-left-color: var(--accent); }
         
-        /* Nova Etiqueta na parte inferior direita */
         .card-count { 
             position: absolute; 
             bottom: 12px; 
             right: 12px; 
-            background: rgba(0, 230, 118, 0.15); 
-            color: var(--accent); 
             padding: 4px 12px; 
             border-radius: 6px; 
             font-size: 0.75rem; 
@@ -85,12 +95,21 @@
             border: 1px solid rgba(0, 230, 118, 0.3);
             text-transform: uppercase;
         }
+        
+        /* ALERTA DE MÍNIMO NO CARD-COUNT */
+        .card-count.minimo-alerta {
+            background: rgba(249, 115, 22, 0.2);
+            color: var(--warning);
+            border-color: rgba(249, 115, 22, 0.5);
+            font-size: 0.8rem;
+        }
 
         .form-container { background: var(--bg-card); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
         input, select { background: #2c2c2c; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 5px; flex: 1; min-width: 150px; }
-        .btn-add { background: var(--accent); color: #000; font-weight: bold; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; }
+        .btn-add, .btn-edit { background: var(--accent); color: #000; font-weight: bold; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; }
+        .btn-edit { background: var(--info); padding: 8px 15px; font-size: 0.8rem; }
 
-        .list-item { background: var(--bg-card); padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .list-item { background: var(--bg-card); padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
         .modal-content { background: var(--bg-card); margin: 2% auto; padding: 25px; width: 95%; max-height: 90vh; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
 
@@ -99,6 +118,7 @@
         th, td { border: 1px solid var(--border); padding: 10px; text-align: center; font-size: 0.85rem; }
         th { background: #111; position: sticky; top: 0; z-index: 2; }
 
+        /* Suas classes de célula existentes... */
         .cell-T { background: var(--cor-t) !important; color: white; font-weight: bold; }
         .cell-FO { background: var(--cor-fo) !important; color: #555; }
         .cell-F { background: var(--cor-f) !important; color: white; }
@@ -116,6 +136,7 @@
 </head>
 <body>
 
+    <!-- Sidebar igual -->
     <nav class="sidebar">
         <div class="logo">SENTINELA GESTÃO DE ESCALAS</div>
         <button onclick="showSection('dashboard_gerencial')" id="nav-dashboard_gerencial" class="active-nav"><span class="material-icons">analytics</span> <span>Gerencial</span></button>
@@ -125,6 +146,7 @@
     </nav>
 
     <main class="content">
+        <!-- Seções dashboard_gerencial e dashboard iguais -->
         <section id="dashboard_gerencial" class="active">
             <div class="stats-header">
                 <h2>Resumo Gerencial</h2>
@@ -156,15 +178,18 @@
             <div id="cards-container" class="grid-cards"></div>
         </section>
 
+        <!-- POSTOS - COM CAMPO MÍNIMO NOVO -->
         <section id="postos">
             <h2>Gestão de Unidades</h2>
             <div class="form-container">
                 <input type="text" id="posto-nome" placeholder="Nome da Unidade">
+                <input type="number" id="posto-minimo" placeholder="Mínimo" min="1" max="50" style="min-width: 100px;">
                 <button class="btn-add" onclick="addPosto()">Criar Posto</button>
             </div>
             <div id="lista-postos"></div>
         </section>
 
+        <!-- Equipe igual -->
         <section id="equipe">
             <h2>Gestão de Agentes</h2>
             <div class="form-container">
@@ -183,6 +208,7 @@
             <div id="lista-equipe"></div>
         </section>
 
+        <!-- Modal igual -->
         <div id="modal-escala" class="modal">
             <div class="modal-content">
                 <div><span class="close" onclick="closeModal()">&times;</span><h3 id="modal-titulo"></h3></div>
@@ -211,6 +237,7 @@
             } catch (err) { console.error(err); }
         }
 
+        // Função isTrabalho igual
         function isTrabalho(data, inicio, escala) {
             const dI = new Date(inicio + 'T00:00:00');
             const dA = new Date(data + 'T00:00:00');
@@ -226,15 +253,31 @@
             }
         }
 
-        // Funções de interação (omitidas para brevidade no exemplo, mas mantidas do código original)
+        // FUNÇÃO MODIFICADA: addPosto com campo mínimo
         async function addPosto() {
             const n = document.getElementById('posto-nome').value;
-            if (!n) return;
-            await _supabase.from('postos').insert([{ nome: n }]);
+            const m = parseInt(document.getElementById('posto-minimo').value) || 1;
+            if (!n) return alert("Digite o nome do posto");
+            if (m < 1 || m > 50) return alert("Mínimo deve ser entre 1 e 50");
+            
+            await _supabase.from('postos').insert([{ nome: n, minimo: m }]);
             document.getElementById('posto-nome').value = '';
+            document.getElementById('posto-minimo').value = '';
             sync();
         }
 
+        // NOVA FUNÇÃO: Editar mínimo do posto
+        async function editMinimo(postoId) {
+            const posto = localDB.postos.find(p => p.id === postoId);
+            const novoMinimo = prompt(`Mínimo atual: ${posto.minimo}\nDigite novo mínimo (1-50):`, posto.minimo);
+            const m = parseInt(novoMinimo);
+            if (isNaN(m) || m < 1 || m > 50) return alert("Mínimo inválido (1-50)");
+            
+            await _supabase.from('postos').update({ minimo: m }).eq('id', postoId);
+            sync();
+        }
+
+        // Funções existentes
         async function removePosto(id) {
             if(confirm("Excluir posto?")) { await _supabase.from('postos').delete().eq('id', id); sync(); }
         }
@@ -255,7 +298,7 @@
         }
 
         async function setSigla(agenteId, data, postoId) {
-            const s = prompt("DIGITE A SIGLA:\nT = Trabalho\nFO = Folga\nFG = Folguista\nF = Falta\nSU = Suspensão\nHI = Hora Extra\nC = Cobertura\nAT = Atestado\nFE = Férias\nL = Limpar").toUpperCase();
+            const s = prompt("DIGITE A SIGLA:\\nT = Trabalho\\nFO = Folga\\nFG = Folguista\\nF = Falta\\nSU = Suspensão\\nHI = Hora Extra\\nC = Cobertura\\nAT = Atestado\\nFE = Férias\\nL = Limpar").toUpperCase();
             if (!s) return;
             if (s === 'L') await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data });
             else await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data, sigla: s });
@@ -263,6 +306,7 @@
             openEscala(postoId);
         }
 
+        // FUNÇÃO renderAll MODIFICADA com verificação de mínimo
         function renderAll() {
             const hoje = new Date().toISOString().split('T')[0];
             const periodo = document.getElementById('filtro-periodo').value;
@@ -278,42 +322,79 @@
             document.getElementById('stat-faltas').innerText = totalFaltas;
             document.getElementById('stat-suspensoes').innerText = totalSu;
             document.getElementById('stat-atestados').innerText = totalAt;
-            document.getElementById('lista-unidades-gestao').innerHTML = localDB.postos.map(p => `• ${p.nome}`).join('<br>');
+            document.getElementById('lista-unidades-gestao').innerHTML = localDB.postos.map(p => `• ${p.nome} (${p.minimo} mín.)`).join('<br>');
 
             const container = document.getElementById('cards-container');
             container.innerHTML = '';
             
             localDB.postos.forEach(p => {
                 const ags = localDB.equipe.filter(e => e.posto_id === p.id);
+                const minimo = p.minimo || 1; // Default 1 se não definido
                 
                 const servicoNoPosto = ags.filter(a => {
                     const siglaAtual = localDB.ocorrencias[`${a.id}-${hoje}`] || (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
                     return ['T', 'HI', 'C', 'FG'].includes(siglaAtual);
                 });
 
-                const card = document.createElement('div');
-                card.className = `card ${servicoNoPosto.length > 0 ? 'active-status' : ''}`;
+                // VERIFICAÇÃO DE MÍNIMO
+                const temMinimoSuficiente = servicoNoPosto.length >= minimo;
+                const classesCard = [
+                    'card',
+                    servicoNoPosto.length > 0 ? 'active-status' : '',
+                    !temMinimoSuficiente ? 'minimo-insuficiente' : ''
+                ].filter(Boolean).join(' ');
                 
-                // HTML do Card com a etiqueta no final
+                const card = document.createElement('div');
+                card.className = classesCard;
+                
+                // TEXTO DO STATUS COM MÍNIMO
+                let statusText = servicoNoPosto.length > 0 ? '🟢 OPERACIONAL' : '🔴 VAGO';
+                if (!temMinimoSuficiente) {
+                    statusText = `⚠️ ABAIXO DO MÍNIMO (${minimo})`;
+                }
+                
                 card.innerHTML = `
                     <h3>${p.nome}</h3>
-                    <p>${servicoNoPosto.length > 0 ? '🟢 OPERACIONAL' : '🔴 VAGO'}</p>
-                    <div class="card-count">${servicoNoPosto.length} EFETIVO</div>
+                    <p>${statusText}</p>
+                    <div class="card-count ${!temMinimoSuficiente ? 'minimo-alerta' : ''}">
+                        ${servicoNoPosto.length}/${minimo} EFETIVO
+                    </div>
                 `;
                 
                 card.onclick = () => openEscala(p.id);
                 container.appendChild(card);
             });
 
-            // Preenche selects e listas de gestão
+            // Preenche selects e listas
             document.getElementById('func-posto-select').innerHTML = '<option value="">Posto...</option>' + localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-            document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => `<div class="list-item"><span>${p.nome}</span><button onclick="removePosto('${p.id}')">Excluir</button></div>`).join('');
-            document.getElementById('lista-equipe').innerHTML = localDB.equipe.map(e => `<div class="list-item"><span>${e.nome}</span><button onclick="removeAgente('${e.id}')">Remover</button></div>`).join('');
+            document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => {
+                const statusMinimo = localDB.equipe.filter(e => e.posto_id === p.id).filter(a => {
+                    const hoje = new Date().toISOString().split('T')[0];
+                    const siglaAtual = localDB.ocorrencias[`${a.id}-${hoje}`] || (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
+                    return ['T', 'HI', 'C', 'FG'].includes(siglaAtual);
+                }).length >= (p.minimo || 1) ? '✅' : '⚠️';
+                return `<div class="list-item">
+                    <span>${p.nome} <strong>(${p.minimo || 1} mín.) ${statusMinimo}</strong></span>
+                    <div>
+                        <button class="btn-edit" onclick="editMinimo('${p.id}')" title="Editar mínimo">Editar Mín.</button>
+                        <button onclick="removePosto('${p.id}')" style="background: var(--danger); color: white; margin-left: 5px;">Excluir</button>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            document.getElementById('lista-equipe').innerHTML = localDB.equipe.map(e => {
+                const posto = localDB.postos.find(p => p.id === e.posto_id);
+                return `<div class="list-item">
+                    <span>${e.nome} - ${posto ? posto.nome : 'Sem posto'}</span>
+                    <button onclick="removeAgente('${e.id}')" style="background: var(--danger); color: white;">Remover</button>
+                </div>`;
+            }).join('');
         }
 
+        // Funções modais iguais
         function openEscala(postoId) {
             const p = localDB.postos.find(x => x.id === postoId);
-            document.getElementById('modal-titulo').innerText = "Escala: " + p.nome;
+            document.getElementById('modal-titulo').innerText = `Escala: ${p.nome} (Mínimo: ${p.minimo || 1})`;
             const agora = new Date();
             const diasMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).getDate();
             document.getElementById('table-header').innerHTML = '<th>AGENTE</th>' + Array.from({length: diasMes}, (_, i) => `<th>${i+1}</th>`).join('');
