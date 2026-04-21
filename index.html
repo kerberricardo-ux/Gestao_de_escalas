@@ -297,11 +297,37 @@
             if(confirm("Remover agente?")) { await _supabase.from('equipe').delete().eq('id', id); sync(); }
         }
 
+        // FUNÇÃO CORRIGIDA E MELHORADA: setSigla com Backspace automático e quebras de linha corretas
         async function setSigla(agenteId, data, postoId) {
-            const s = prompt("DIGITE A SIGLA:\\nT = Trabalho\\nFO = Folga\\nFG = Folguista\\nF = Falta\\nSU = Suspensão\\nHI = Hora Extra\\nC = Cobertura\\nAT = Atestado\\nFE = Férias\\nL = Limpar").toUpperCase();
-            if (!s) return;
-            if (s === 'L') await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data });
-            else await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data, sigla: s });
+            const mensagem = `DIGITE A SIGLA:\n\n` +
+                `T  = Trabalho\n` +
+                `FO = Folga\n` +
+                `FG = Folguista\n` +
+                `F  = Falta\n` +
+                `SU = Suspensão\n` +
+                `HI = Hora Extra\n` +
+                `C  = Cobertura\n` +
+                `AT = Atestado\n` +
+                `FE = Férias\n` +
+                `L  = Limpar\n\n` +
+                `(Pressione Backspace com campo vazio para LIMPAR)`;
+
+            const s = prompt(mensagem).toUpperCase().trim();
+            
+            // Se vazio ou apenas Backspace foi pressionado, trata como "L" (Limpar)
+            if (!s || s === '') {
+                await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data });
+                await sync();
+                openEscala(postoId);
+                return;
+            }
+
+            if (s === 'L') {
+                await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data });
+            } else {
+                await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data, sigla: s });
+            }
+            
             await sync();
             openEscala(postoId);
         }
