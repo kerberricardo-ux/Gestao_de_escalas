@@ -190,6 +190,11 @@
             border-left-color: var(--accent);
         }
 
+        .card.cobertura-ativa {
+            border-left-color: var(--info) !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
         .card-count {
             position: absolute;
             bottom: 12px;
@@ -209,7 +214,12 @@
             font-size: 0.8rem;
         }
 
-        /* NOVOS ESTILOS PARA COBERTURA - ADICIONADOS */
+        .card-count.cobertura-badge {
+            background: rgba(59, 130, 246, 0.18);
+            color: var(--info);
+            border-color: rgba(59, 130, 246, 0.45);
+        }
+
         .btn-cobertura {
             background: var(--info);
             color: white;
@@ -369,7 +379,6 @@
             justify-content: flex-end;
         }
 
-        /* NOVO ESTILO DA ESCALA VERTICAL */
         .escala-container {
             max-height: 70vh;
             overflow-y: auto;
@@ -616,7 +625,6 @@
             <div id="lista-equipe"></div>
         </section>
 
-        <!-- MODAL ESCALA CORRIGIDO PARA FORMATO VERTICAL -->
         <div id="modal-escala" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -627,7 +635,6 @@
             </div>
         </div>
 
-        <!-- MODAL EDIÇÃO AGENTE -->
         <div id="modal-edit-agente" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -670,25 +677,62 @@
         let localDB = { postos: [], equipe: [], ocorrencias: {} };
         let agenteEditando = null;
 
-        // NOVA FUNÇÃO PARA DEFINIR COBERTURA - ADICIONADA
+        function possuiCoberturaAtiva(posto) {
+            return Boolean(posto?.cobertura && posto.cobertura.trim() !== '');
+        }
+
+        function getResumoPosto(posto, dataRef) {
+            const ags = localDB.equipe.filter(e => e.posto_id === posto.id);
+            const minimo = posto.minimo || 1;
+
+            const servicoNoPosto = ags.filter(a => {
+                const siglaAtual = localDB.ocorrencias[`${a.id}-${dataRef}`] ||
+                    (isTrabalho(dataRef, a.inicio, a.escala) ? 'T' : 'FO');
+
+                return ['T', 'HI', 'C', 'FG'].includes(siglaAtual);
+            });
+
+            const coberturaAtiva = possuiCoberturaAtiva(posto);
+
+            const totalEfetivo = servicoNoPosto.length + (coberturaAtiva ? 1 : 0);
+            const temMinimoSuficiente = totalEfetivo >= minimo;
+
+            return {
+                ags,
+                minimo,
+                servicoNoPosto,
+                coberturaAtiva,
+                totalEfetivo,
+                temMinimoSuficiente
+            };
+        }
+
         async function definirCobertura(postoId) {
             const posto = localDB.postos.find(p => p.id === postoId);
             if (!posto) return;
 
-            const nomeCobertura = prompt(`Quem irá cobrir o posto "${posto.nome}"?`, posto.cobertura || '');
-            
-            if (nomeCobertura === null || nomeCobertura.trim() === '') {
-                return; // Usuário cancelou ou deixou vazio
+            const nomeCobertura = prompt(
+                `Quem irá cobrir o posto "${posto.nome}"?\n\nDeixe vazio para remover a cobertura.`,
+                posto.cobertura || ''
+            );
+
+            if (nomeCobertura === null) {
+                return;
             }
 
-            try {
-                // Atualiza o campo cobertura no banco
-                await _supabase.from('postos').update({ 
-                    cobertura: nomeCobertura.trim()
-                }).eq('id', postoId);
+            const coberturaNormalizada = nomeCobertura.trim();
 
-                // Atualiza localDB e re-renderiza
-                sync();
+            try {
+                const { error } = await _supabase
+                    .from('postos')
+                    .update({
+                        cobertura: coberturaNormalizada
+                    })
+                    .eq('id', postoId);
+
+                if (error) throw error;
+
+                await sync();
             } catch (error) {
                 console.error('Erro ao salvar cobertura:', error);
                 alert('Erro ao salvar cobertura');
@@ -876,56 +920,63 @@
             container.innerHTML = '';
 
             localDB.postos.forEach(p => {
-                const ags = localDB.equipe.filter(e => e.posto_id === p.id);
-                const minimo = p.minimo || 1;
-
-                const servicoNoPosto = ags.filter(a => {
-                    const siglaAtual = localDB.ocorrencias[`${a.id}-${hoje}`] ||
-                        (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
-
-                    return ['T', 'HI', 'C', 'FG'].includes(siglaAtual);
-                });
-
-                const temMinimoSuficiente = servicoNoPosto.length >= minimo;
+                const {
+                    minimo,
+                    servicoNoPosto,
+                    coberturaAtiva,
+                    totalEfetivo,
+                    temMinimoSuficiente
+                } = getResumoPosto(p, hoje);
 
                 const classesCard = [
                     'card',
-                    servicoNoPosto.length > 0 ? 'active-status' : '',
-                    !temMinimoSuficiente ? 'minimo-insuficiente' : ''
+                    totalEfetivo > 0 ? 'active-status' : '',
+                    coberturaAtiva ? 'cobertura-ativa' : '',
+                    !temMinimoSuficiente && !coberturaAtiva ? 'minimo-insuficiente' : ''
                 ].filter(Boolean).join(' ');
 
                 const card = document.createElement('div');
                 card.className = classesCard;
 
-                let statusText = servicoNoPosto.length > 0 ? '🟢 OPERACIONAL' : '🔴 VAGO';
-                if (!temMinimoSuficiente) {
+                let statusText = '🔴 VAGO';
+
+                if (coberturaAtiva) {
+                    statusText = '🟢 COBERTO';
+                } else if (!temMinimoSuficiente) {
                     statusText = `⚠️ ABAIXO DO MÍNIMO (${minimo})`;
+                } else if (servicoNoPosto.length > 0) {
+                    statusText = '🟢 OPERACIONAL';
                 }
 
-                // CONTEÚDO DO CARD MODIFICADO PARA INCLUIR COBERTURA - ADICIONADO
+                let badgeClass = '';
+                if (coberturaAtiva) {
+                    badgeClass = 'cobertura-badge';
+                } else if (!temMinimoSuficiente) {
+                    badgeClass = 'minimo-alerta';
+                }
+
                 let conteudoCard = `
                     <h3>${p.nome}</h3>
                     <p>${statusText}</p>
-                    <div class="card-count ${!temMinimoSuficiente ? 'minimo-alerta' : ''}">
-                        ${servicoNoPosto.length}/${minimo} EFETIVO
+                    <div class="card-count ${badgeClass}">
+                        ${totalEfetivo}/${minimo} EFETIVO
                     </div>
                 `;
 
-                // ADICIONA BOTÃO E INFORMAÇÃO DE COBERTURA APENAS SE ESTIVER ABAIXO DO MÍNIMO
-                if (!temMinimoSuficiente) {
-                    if (p.cobertura && p.cobertura.trim() !== '') {
-                        conteudoCard += `
-                            <div class="cobertura-info">
-                                Cobertura: ${p.cobertura}
-                            </div>
-                        `;
-                    } else {
-                        conteudoCard += `
-                            <button class="btn-cobertura" onclick="definirCobertura('${p.id}'); event.stopPropagation();">
-                                Definir Cobertura
-                            </button>
-                        `;
-                    }
+                if (coberturaAtiva) {
+                    conteudoCard += `
+                        <div class="cobertura-info">
+                            Cobertura: ${p.cobertura}
+                        </div>
+                    `;
+                }
+
+                if (!temMinimoSuficiente || coberturaAtiva) {
+                    conteudoCard += `
+                        <button class="btn-cobertura" onclick="event.stopPropagation(); definirCobertura('${p.id}')">
+                            ${coberturaAtiva ? 'Editar Cobertura' : 'Definir Cobertura'}
+                        </button>
+                    `;
                 }
 
                 card.innerHTML = conteudoCard;
@@ -939,19 +990,29 @@
                 localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
 
             document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => {
-                const efetivoNoPosto = localDB.equipe
-                    .filter(e => e.posto_id === p.id)
-                    .filter(a => {
-                        const siglaAtual = localDB.ocorrencias[`${a.id}-${hoje}`] ||
-                            (isTrabalho(hoje, a.inicio, a.escala) ? 'T' : 'FO');
-                        return ['T', 'HI', 'C', 'FG'].includes(siglaAtual);
-                    }).length;
+                const {
+                    minimo,
+                    coberturaAtiva,
+                    totalEfetivo,
+                    temMinimoSuficiente
+                } = getResumoPosto(p, hoje);
 
-                const statusMinimo = efetivoNoPosto >= (p.minimo || 1) ? '✅' : '⚠️';
+                let statusMinimo = '⚠️ ABAIXO DO MÍNIMO';
+                if (coberturaAtiva) {
+                    statusMinimo = '🟦 COBERTO';
+                } else if (temMinimoSuficiente) {
+                    statusMinimo = '✅ OK';
+                }
 
                 return `
                     <div class="list-item">
-                        <span>${p.nome} <strong>(${p.minimo || 1} mín.) ${statusMinimo}</strong></span>
+                        <span>
+                            ${p.nome} <strong>(${minimo} mín.) ${statusMinimo}</strong><br>
+                            <small>
+                                Efetivo operacional: ${totalEfetivo}/${minimo}
+                                ${coberturaAtiva ? ` | Cobertura: ${p.cobertura}` : ''}
+                            </small>
+                        </span>
                         <div>
                             <button class="btn-edit" onclick="editMinimo('${p.id}')" title="Editar mínimo">Editar Mín.</button>
                             <button class="btn-remove" onclick="removePosto('${p.id}')">Excluir</button>
@@ -975,8 +1036,6 @@
             }).join('');
         }
 
-        /* CORREÇÃO APLICADA DO PRIMEIRO CÓDIGO:
-           MODAL DE ESCALA NO FORMATO VERTICAL POR AGENTE */
         function openEscala(postoId) {
             const posto = localDB.postos.find(p => p.id === postoId);
             if (!posto) return;
@@ -1047,23 +1106,21 @@
             document.getElementById('modal-escala').style.display = 'block';
         }
 
-        /* CORREÇÃO APLICADA DO PRIMEIRO CÓDIGO:
-           EDIÇÃO DE SIGLA NO NOVO FORMATO VERTICAL */
         async function setSiglaVertical(agenteId, data, postoId) {
             const mensagem =
-                `DIGITE A SIGLA:\\n\\n` +
-                `T  = Trabalho\\n` +
-                `FO = Folga\\n` +
-                `FG = Folguista\\n` +
-                `F  = Falta\\n` +
-                `SU = Suspensão\\n` +
-                `HI = Hora Extra\\n` +
-                `C  = Cobertura\\n` +
-                `AT = Atestado\\n` +
-                `FE = Férias\\n` +
-                `AF = Afastamento\\n` +
-                `TC = Treinamento/Curso\\n` +
-                `L  = Limpar\\n\\n` +
+                `DIGITE A SIGLA:\n\n` +
+                `T  = Trabalho\n` +
+                `FO = Folga\n` +
+                `FG = Folguista\n` +
+                `F  = Falta\n` +
+                `SU = Suspensão\n` +
+                `HI = Hora Extra\n` +
+                `C  = Cobertura\n` +
+                `AT = Atestado\n` +
+                `FE = Férias\n` +
+                `AF = Afastamento\n` +
+                `TC = Treinamento/Curso\n` +
+                `L  = Limpar\n\n` +
                 `(Deixe vazio ou use L para limpar)`;
 
             const sigla = prompt(mensagem)?.toUpperCase().trim();
