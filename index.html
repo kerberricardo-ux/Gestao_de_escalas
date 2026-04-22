@@ -209,6 +209,37 @@
             font-size: 0.8rem;
         }
 
+        /* NOVOS ESTILOS PARA COBERTURA - ADICIONADOS */
+        .btn-cobertura {
+            background: var(--info);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-cobertura:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .cobertura-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            color: var(--info);
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
         .form-container {
             background: var(--bg-card);
             padding: 20px;
@@ -639,6 +670,31 @@
         let localDB = { postos: [], equipe: [], ocorrencias: {} };
         let agenteEditando = null;
 
+        // NOVA FUNÇÃO PARA DEFINIR COBERTURA - ADICIONADA
+        async function definirCobertura(postoId) {
+            const posto = localDB.postos.find(p => p.id === postoId);
+            if (!posto) return;
+
+            const nomeCobertura = prompt(`Quem irá cobrir o posto "${posto.nome}"?`, posto.cobertura || '');
+            
+            if (nomeCobertura === null || nomeCobertura.trim() === '') {
+                return; // Usuário cancelou ou deixou vazio
+            }
+
+            try {
+                // Atualiza o campo cobertura no banco
+                await _supabase.from('postos').update({ 
+                    cobertura: nomeCobertura.trim()
+                }).eq('id', postoId);
+
+                // Atualiza localDB e re-renderiza
+                sync();
+            } catch (error) {
+                console.error('Erro ao salvar cobertura:', error);
+                alert('Erro ao salvar cobertura');
+            }
+        }
+
         async function sync() {
             try {
                 const { data: p } = await _supabase.from('postos').select('*').order('nome');
@@ -683,7 +739,7 @@
             if (!n) return alert("Digite o nome do posto");
             if (m < 1 || m > 50) return alert("Mínimo deve ser entre 1 e 50");
 
-            await _supabase.from('postos').insert([{ nome: n, minimo: m }]);
+            await _supabase.from('postos').insert([{ nome: n, minimo: m, cobertura: '' }]);
 
             document.getElementById('posto-nome').value = '';
             document.getElementById('posto-minimo').value = '';
@@ -695,7 +751,7 @@
             const posto = localDB.postos.find(p => p.id === postoId);
             if (!posto) return;
 
-            const novoMinimo = prompt(`Mínimo atual: ${posto.minimo}\nDigite novo mínimo (1-50):`, posto.minimo);
+            const novoMinimo = prompt(`Mínimo atual: ${posto.minimo}\\nDigite novo mínimo (1-50):`, posto.minimo);
             const m = parseInt(novoMinimo);
 
             if (isNaN(m) || m < 1 || m > 50) return alert("Mínimo inválido (1-50)");
@@ -846,7 +902,8 @@
                     statusText = `⚠️ ABAIXO DO MÍNIMO (${minimo})`;
                 }
 
-                card.innerHTML = `
+                // CONTEÚDO DO CARD MODIFICADO PARA INCLUIR COBERTURA - ADICIONADO
+                let conteudoCard = `
                     <h3>${p.nome}</h3>
                     <p>${statusText}</p>
                     <div class="card-count ${!temMinimoSuficiente ? 'minimo-alerta' : ''}">
@@ -854,6 +911,24 @@
                     </div>
                 `;
 
+                // ADICIONA BOTÃO E INFORMAÇÃO DE COBERTURA APENAS SE ESTIVER ABAIXO DO MÍNIMO
+                if (!temMinimoSuficiente) {
+                    if (p.cobertura && p.cobertura.trim() !== '') {
+                        conteudoCard += `
+                            <div class="cobertura-info">
+                                Cobertura: ${p.cobertura}
+                            </div>
+                        `;
+                    } else {
+                        conteudoCard += `
+                            <button class="btn-cobertura" onclick="definirCobertura('${p.id}'); event.stopPropagation();">
+                                Definir Cobertura
+                            </button>
+                        `;
+                    }
+                }
+
+                card.innerHTML = conteudoCard;
                 card.onclick = () => openEscala(p.id);
                 container.appendChild(card);
             });
@@ -976,19 +1051,19 @@
            EDIÇÃO DE SIGLA NO NOVO FORMATO VERTICAL */
         async function setSiglaVertical(agenteId, data, postoId) {
             const mensagem =
-                `DIGITE A SIGLA:\n\n` +
-                `T  = Trabalho\n` +
-                `FO = Folga\n` +
-                `FG = Folguista\n` +
-                `F  = Falta\n` +
-                `SU = Suspensão\n` +
-                `HI = Hora Extra\n` +
-                `C  = Cobertura\n` +
-                `AT = Atestado\n` +
-                `FE = Férias\n` +
-                `AF = Afastamento\n` +
-                `TC = Treinamento/Curso\n` +
-                `L  = Limpar\n\n` +
+                `DIGITE A SIGLA:\\n\\n` +
+                `T  = Trabalho\\n` +
+                `FO = Folga\\n` +
+                `FG = Folguista\\n` +
+                `F  = Falta\\n` +
+                `SU = Suspensão\\n` +
+                `HI = Hora Extra\\n` +
+                `C  = Cobertura\\n` +
+                `AT = Atestado\\n` +
+                `FE = Férias\\n` +
+                `AF = Afastamento\\n` +
+                `TC = Treinamento/Curso\\n` +
+                `L  = Limpar\\n\\n` +
                 `(Deixe vazio ou use L para limpar)`;
 
             const sigla = prompt(mensagem)?.toUpperCase().trim();
