@@ -20,7 +20,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-primary); display: flex; min-height: 100vh; }
 
-        /* Sidebar e Layout */
         .sidebar { width: 220px; background: #000; padding: 20px; position: fixed; height: 100vh; border-right: 1px solid var(--border); z-index: 100; }
         .logo { font-weight: 800; font-size: 1rem; color: var(--accent); margin-bottom: 40px; text-align: center; letter-spacing: 1.5px; text-transform: uppercase; }
         .sidebar button { width: 100%; background: none; border: none; color: var(--text-secondary); padding: 15px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; border-radius: 8px; transition: 0.3s; margin-bottom: 5px; }
@@ -31,7 +30,6 @@
         section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Cards e Stats */
         .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: var(--bg-card); padding: 20px; border-radius: 12px; text-align: center; border-bottom: 4px solid var(--accent); }
@@ -44,16 +42,12 @@
         .card.cobertura-ativa { border-left-color: var(--info); box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
         .card-count { position: absolute; bottom: 12px; right: 12px; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; background: rgba(0,0,0,0.3); }
 
-        /* Formulários e Inputs */
         .form-container { background: var(--bg-card); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; border: 1px solid var(--border); }
         input, select { background: #2c2c2c; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; flex: 1; min-width: 150px; outline: none; transition: 0.2s; }
-        input:focus { border-color: var(--accent); }
         
         .btn-add, .btn-save { background: var(--accent); color: #000; font-weight: bold; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        .btn-add:hover { filter: brightness(1.1); }
         .btn-cancel { background: #333; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; }
 
-        /* Modal e Escala */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); }
         .modal-content { background: var(--bg-card); margin: 5% auto; padding: 25px; width: 90%; max-width: 1100px; border-radius: 15px; border: 1px solid var(--border); max-height: 85vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px; }
@@ -61,9 +55,7 @@
         .escala-row { display: grid; grid-template-columns: repeat(31, 1fr); gap: 2px; background: var(--border); padding: 5px 0; }
         .dia-cell, .sigla-cell { background: var(--bg-card); text-align: center; padding: 8px 0; font-size: 0.75rem; }
         .sigla-cell { cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .sigla-cell:hover { filter: brightness(1.5); transform: scale(1.1); }
 
-        /* Novas Classes UX */
         .notification { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; z-index: 2000; animation: slideIn 0.3s ease; color: white; }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         
@@ -107,6 +99,7 @@
                 <div class="stat-card"><h3>Equipe</h3><div class="value" id="stat-agentes">0</div></div>
                 <div class="stat-card" style="border-color: var(--danger)"><h3>Faltas</h3><div class="value" id="stat-faltas">0</div></div>
                 <div class="stat-card" style="border-color: var(--warning)"><h3>Suspensões</h3><div class="value" id="stat-suspensoes">0</div></div>
+                <div class="stat-card"><h3>Atestados</h3><div class="value" id="stat-atestados">0</div></div>
             </div>
             <div class="grid-cards">
                 <div class="stat-card" style="text-align: left; grid-column: span 1; border-bottom: none;">
@@ -195,7 +188,17 @@
         let siglaContexto = null;
         let coberturaContexto = null;
 
-        // --- FUNÇÕES DE DATA (LOCAL TIME) ---
+        // --- HELPERS SEGUROS ---
+        function setElText(id, txt) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = txt;
+        }
+
+        function setElHtml(id, html) {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = html;
+        }
+
         function formatarDataISO(data) {
             const d = new Date(data);
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -203,8 +206,8 @@
 
         function atualizarDataDisplay() {
             const opt = { day: '2-digit', month: 'long', year: 'numeric' };
-            document.getElementById('current-date').innerText = dataSelecionada.toLocaleDateString('pt-BR', opt);
-            document.getElementById('current-date-gerencial').innerText = dataSelecionada.toLocaleDateString('pt-BR', opt);
+            setElText('current-date', dataSelecionada.toLocaleDateString('pt-BR', opt));
+            setElText('current-date-gerencial', dataSelecionada.toLocaleDateString('pt-BR', opt));
         }
 
         function alterarDia(dias) {
@@ -213,7 +216,6 @@
             renderAll();
         }
 
-        // --- NOTIFICAÇÕES (UX) ---
         function notificar(msg, tipo = 'info') {
             const div = document.createElement('div');
             div.className = `notification`;
@@ -224,7 +226,7 @@
             setTimeout(() => div.remove(), 3000);
         }
 
-        // --- LÓGICA DE NEGÓCIO (NÃO ALTERADA) ---
+        // --- LÓGICA DE NEGÓCIO ---
         function isTrabalho(data, inicio, escala) {
             const dI = new Date(inicio + 'T00:00:00');
             const dA = new Date(data + 'T00:00:00');
@@ -253,8 +255,9 @@
             return { total, temMinimo: total >= (posto.minimo || 1), servicoNoPosto, coberturaAtiva };
         }
 
-        // --- INTEGRAÇÃO SUPABASE (NÃO ALTERADA) ---
+        // --- INTEGRAÇÃO SUPABASE CORRIGIDA ---
         async function sync() {
+            console.log("Sync iniciado...");
             try {
                 const [p, e, o, c] = await Promise.all([
                     _supabase.from('postos').select('*').order('nome'),
@@ -262,22 +265,37 @@
                     _supabase.from('ocorrencias').select('*'),
                     _supabase.from('coberturas').select('*')
                 ]);
+
+                console.log("Dados recebidos do Supabase:", { p, e, o, c });
+
+                // Garantia de dados válidos (evita erros se retornar data null)
                 localDB.postos = p.data || [];
                 localDB.equipe = e.data || [];
                 localDB.ocorrencias = {};
                 localDB.coberturas = {};
-                o.data?.forEach(occ => localDB.ocorrencias[`${occ.agente_id}-${occ.data}`] = occ.sigla);
-                c.data?.forEach(cob => localDB.coberturas[`${cob.posto_id}-${cob.data}`] = cob.nome);
+
+                if (o.data) {
+                    o.data.forEach(occ => localDB.ocorrencias[`${occ.agente_id}-${occ.data}`] = occ.sigla);
+                }
+                if (c.data) {
+                    c.data.forEach(cob => localDB.coberturas[`${cob.posto_id}-${cob.data}`] = cob.nome);
+                }
+
                 renderAll();
-            } catch (err) { notificar("Erro ao sincronizar dados", "error"); }
+            } catch (err) { 
+                console.error("Erro real do Supabase:", err);
+                notificar("Erro ao sincronizar dados", "error"); 
+            }
         }
 
-        // --- GESTÃO DE COBERTURA (UX IMPROVED) ---
+        // --- GESTÃO DE COBERTURA ---
         function definirCobertura(postoId) {
             const dataIso = formatarDataISO(dataSelecionada);
             coberturaContexto = { postoId, dataIso };
-            document.getElementById('cob-nome').value = localDB.coberturas[`${postoId}-${dataIso}`] || '';
-            document.getElementById('modal-cobertura').style.display = 'block';
+            const input = document.getElementById('cob-nome');
+            if (input) input.value = localDB.coberturas[`${postoId}-${dataIso}`] || '';
+            const modal = document.getElementById('modal-cobertura');
+            if (modal) modal.style.display = 'block';
         }
 
         async function salvarCoberturaVisual() {
@@ -296,7 +314,7 @@
             } catch(e) { notificar("Erro ao remover", "error"); }
         }
 
-        // --- GESTÃO DE SIGLAS (UX IMPROVED) ---
+        // --- GESTÃO DE SIGLAS ---
         const SIGLAS_MAP = [
             {s:'T', n:'Trabalho', c:'var(--cor-t)'}, {s:'FO', n:'Folga', c:'var(--cor-fo)'},
             {s:'F', n:'Falta', c:'var(--cor-f)'}, {s:'SU', n:'Suspensão', c:'var(--cor-su)'},
@@ -309,9 +327,10 @@
         function setSiglaVertical(agenteId, data, postoId) {
             siglaContexto = { agenteId, data, postoId };
             const container = document.getElementById('sigla-buttons-container');
-            container.innerHTML = '';
+            if (!container) return;
             
-            document.getElementById('sigla-info').innerText = `Agente ID: ${agenteId} | Data: ${data}`;
+            container.innerHTML = '';
+            setElText('sigla-info', `Agente ID: ${agenteId} | Data: ${data}`);
 
             SIGLAS_MAP.forEach(item => {
                 const b = document.createElement('button');
@@ -343,8 +362,8 @@
         // --- RENDERIZAÇÃO ---
         function renderGerencial() {
             const hoje = formatarDataISO(dataSelecionada);
-            const postoFiltro = document.getElementById('filtro-posto-gerencial').value;
-            const ocorrenciaFiltro = document.getElementById('filtro-ocorrencia-gerencial').value;
+            const postoFiltro = document.getElementById('filtro-posto-gerencial')?.value;
+            const ocorrenciaFiltro = document.getElementById('filtro-ocorrencia-gerencial')?.value;
 
             let f=0, su=0, at=0, ausencias = '', coberturas = '';
 
@@ -361,18 +380,20 @@
                 }
             });
 
-            document.getElementById('stat-postos').innerText = localDB.postos.length;
-            document.getElementById('stat-agentes').innerText = localDB.equipe.length;
-            document.getElementById('stat-faltas').innerText = f;
-            document.getElementById('stat-suspensoes').innerText = su;
-            document.getElementById('stat-atestados').innerText = at;
-            document.getElementById('lista-ausencias-gerencial').innerHTML = ausencias || '<small>Sem ausências</small>';
-            document.getElementById('lista-coberturas-gerencial').innerHTML = coberturas || '<small>Sem coberturas</small>';
+            setElText('stat-postos', localDB.postos.length);
+            setElText('stat-agentes', localDB.equipe.length);
+            setElText('stat-faltas', f);
+            setElText('stat-suspensoes', su);
+            setElText('stat-atestados', at);
+
+            setElHtml('lista-ausencias-gerencial', ausencias || '<small>Sem ausências</small>');
+            setElHtml('lista-coberturas-gerencial', coberturas || '<small>Sem coberturas</small>');
             
-            document.getElementById('lista-unidades-gestao').innerHTML = localDB.postos.map(p => {
+            const unidadesHtml = localDB.postos.map(p => {
                 const r = getResumoPosto(p, hoje);
                 return `• ${r.temMinimo ? '✅' : '⚠️'} ${p.nome} (${r.total}/${p.minimo || 1})`;
             }).join('<br>');
+            setElHtml('lista-unidades-gestao', unidadesHtml);
         }
 
         function renderAll() {
@@ -380,7 +401,9 @@
             renderGerencial();
 
             const container = document.getElementById('cards-container');
+            if (!container) return;
             container.innerHTML = '';
+
             localDB.postos.forEach(p => {
                 const r = getResumoPosto(p, hoje);
                 const cobNome = localDB.coberturas[`${p.id}-${hoje}`] || '';
@@ -399,18 +422,21 @@
 
             // Atualizar Selects
             const selectPostos = localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-            document.getElementById('func-posto-select').innerHTML = '<option value="">Selecione Posto...</option>' + selectPostos;
-            document.getElementById('filtro-posto-gerencial').innerHTML = '<option value="">Todas Unidades</option>' + selectPostos;
+            setElHtml('func-posto-select', '<option value="">Selecione Posto...</option>' + selectPostos);
+            setElHtml('filtro-posto-gerencial', '<option value="">Todas Unidades</option>' + selectPostos);
 
             // Listas de Cadastro
-            document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => `<div class="list-item"><span>${p.nome} (${p.minimo} mín)</span><button class="btn-remove material-icons" onclick="removePosto('${p.id}')">delete</button></div>`).join('');
-            document.getElementById('lista-equipe').innerHTML = localDB.equipe.map(e => `<div class="list-item"><span>${e.nome} - ${e.escala}</span><button class="btn-remove material-icons" onclick="removeAgente('${e.id}')">delete</button></div>`).join('');
+            const postosList = localDB.postos.map(p => `<div class="list-item"><span>${p.nome} (${p.minimo} mín)</span><button class="btn-remove material-icons" onclick="removePosto('${p.id}')">delete</button></div>`).join('');
+            setElHtml('lista-postos', postosList);
+
+            const equipeList = localDB.equipe.map(e => `<div class="list-item"><span>${e.nome} - ${e.escala}</span><button class="btn-remove material-icons" onclick="removeAgente('${e.id}')">delete</button></div>`).join('');
+            setElHtml('lista-equipe', equipeList);
         }
 
         function openEscala(postoId) {
             const posto = localDB.postos.find(p => p.id === postoId);
             if (!posto) return;
-            document.getElementById('modal-titulo').innerText = `Escala: ${posto.nome}`;
+            setElText('modal-titulo', `Escala: ${posto.nome}`);
             const ano = dataSelecionada.getFullYear(), mes = dataSelecionada.getMonth() + 1;
             const diasMes = new Date(ano, mes, 0).getDate();
             const agentes = localDB.equipe.filter(e => e.posto_id === postoId);
@@ -427,11 +453,11 @@
                     }).join('')}</div>
                 </div>`;
             });
-            document.getElementById('escala-content').innerHTML = html;
-            document.getElementById('modal-escala').style.display = 'block';
+            setElHtml('escala-content', html);
+            const modal = document.getElementById('modal-escala');
+            if (modal) modal.style.display = 'block';
         }
 
-        // --- CRUD BÁSICO COM VALIDAÇÃO ---
         async function addPosto() {
             const nome = document.getElementById('posto-nome').value.trim();
             const min = document.getElementById('posto-minimo').value;
@@ -457,13 +483,15 @@
         async function removePosto(id) { if(confirm("Excluir esta unidade?")) await _supabase.from('postos').delete().eq('id', id).then(sync); }
         async function removeAgente(id) { if(confirm("Remover este agente?")) await _supabase.from('equipe').delete().eq('id', id).then(sync); }
 
-        // --- HELPERS UI ---
         function showSection(id) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active-nav'));
-            document.getElementById(id).classList.add('active');
-            document.getElementById('nav-' + id).classList.add('active-nav');
+            const el = document.getElementById(id);
+            if (el) el.classList.add('active');
+            const nav = document.getElementById('nav-' + id);
+            if (nav) nav.classList.add('active-nav');
         }
+
         function closeModal() { document.getElementById('modal-escala').style.display = 'none'; }
         function closeSiglaModal() { document.getElementById('modal-sigla').style.display = 'none'; }
         function closeCoberturaModal() { document.getElementById('modal-cobertura').style.display = 'none'; }
