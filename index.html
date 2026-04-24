@@ -270,10 +270,7 @@
             min-width: 150px;
         }
 
-        .btn-add,
-        .btn-edit,
-        .btn-save,
-        .btn-cancel {
+        .btn-add, .btn-edit, .btn-save, .btn-cancel {
             background: var(--accent);
             color: #000;
             font-weight: bold;
@@ -284,16 +281,8 @@
             margin: 0 5px;
         }
 
-        .btn-edit,
-        .btn-save {
-            background: var(--info);
-        }
-
-        .btn-cancel {
-            background: var(--warning);
-            color: white;
-        }
-
+        .btn-edit, .btn-save { background: var(--info); }
+        .btn-cancel { background: var(--warning); color: white; }
         .btn-remove {
             background: var(--danger);
             color: white;
@@ -362,42 +351,12 @@
             transition: 0.2s;
         }
 
-        .close:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .modal-edit-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
+        .close:hover { background: rgba(255,255,255,0.1); }
 
         .escala-container {
             max-height: 70vh;
             overflow-y: auto;
             padding: 10px 0;
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent) var(--bg-card);
-        }
-
-        .escala-container::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .escala-container::-webkit-scrollbar-track {
-            background: var(--bg-card);
-        }
-
-        .escala-container::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 3px;
         }
 
         .agente-bloco {
@@ -406,12 +365,6 @@
             border-radius: 10px;
             margin-bottom: 15px;
             overflow: hidden;
-            transition: all 0.2s;
-        }
-
-        .agente-bloco:hover {
-            box-shadow: 0 4px 12px rgba(0,230,118,0.2);
-            border-color: var(--accent);
         }
 
         .agente-header {
@@ -419,17 +372,10 @@
             padding: 12px 20px;
             border-bottom: 1px solid var(--border);
             font-weight: bold;
-            font-size: 0.95rem;
             color: var(--accent);
             position: sticky;
             top: 0;
             z-index: 10;
-        }
-
-        .escala-linhas {
-            display: flex;
-            flex-direction: column;
-            min-height: 50px;
         }
 
         .escala-row {
@@ -440,47 +386,16 @@
             padding: 8px 0;
         }
 
-        .dia-cell {
+        .dia-cell, .sigla-cell {
             background: var(--bg-card);
             text-align: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            padding: 6px 2px;
-            min-height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: default;
-            border-radius: 3px;
-            transition: 0.2s;
         }
 
-        .dia-cell:hover {
-            background: rgba(0,230,118,0.1);
-            color: var(--accent);
-        }
-
-        .sigla-cell {
-            background: var(--bg-card);
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: bold;
-            padding: 8px 4px;
-            min-height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: 0.2s;
-            position: relative;
-        }
-
-        .sigla-cell:hover {
-            transform: scale(1.05);
-            z-index: 5;
-        }
+        .dia-cell { font-size: 0.75rem; color: var(--text-secondary); min-height: 32px; }
+        .sigla-cell { font-size: 0.85rem; font-weight: bold; min-height: 36px; cursor: pointer; border-radius: 4px; transition: 0.2s; }
 
         .sigla-T { background: var(--cor-t) !important; color: white; }
         .sigla-FO { background: var(--cor-fo) !important; color: #555; }
@@ -495,31 +410,9 @@
         .sigla-TC { background: var(--cor-tc) !important; color: white; }
 
         @media (max-width: 768px) {
-            .content {
-                margin-left: 0;
-                padding: 15px;
-                width: 100%;
-            }
-
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .escala-row {
-                grid-template-columns: repeat(15, 1fr);
-            }
-
-            .dia-cell,
-            .sigla-cell {
-                font-size: 0.7rem;
-                padding: 4px 1px;
-                min-height: 28px;
-            }
-
-            .agente-header {
-                font-size: 0.85rem;
-                padding: 10px 15px;
-            }
+            .content { margin-left: 0; width: 100%; padding: 15px; }
+            .sidebar { transform: translateX(-100%); }
+            .escala-row { grid-template-columns: repeat(15, 1fr); }
         }
     </style>
 </head>
@@ -527,19 +420,15 @@
 
     <nav class="sidebar">
         <div class="logo">SENTINELA GESTÃO DE ESCALAS</div>
-
         <button onclick="showSection('dashboard_gerencial')" id="nav-dashboard_gerencial" class="active-nav">
             <span class="material-icons">analytics</span> <span>Gerencial</span>
         </button>
-
         <button onclick="showSection('dashboard')" id="nav-dashboard">
             <span class="material-icons">monitor_heart</span> <span>Tempo Real</span>
         </button>
-
         <button onclick="showSection('postos')" id="nav-postos">
             <span class="material-icons">business</span> <span>Postos</span>
         </button>
-
         <button onclick="showSection('equipe')" id="nav-equipe">
             <span class="material-icons">groups</span> <span>Equipe</span>
         </button>
@@ -554,36 +443,16 @@
                     <option value="mes">Mês Atual</option>
                 </select>
             </div>
-
             <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Postos Ativos</h3>
-                    <div class="value" id="stat-postos">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Efetivo Total</h3>
-                    <div class="value" id="stat-agentes">0</div>
-                </div>
-                <div class="stat-card alert">
-                    <h3>Faltas</h3>
-                    <div class="value" id="stat-faltas">0</div>
-                </div>
-                <div class="stat-card alert">
-                    <h3>Suspensões</h3>
-                    <div class="value" id="stat-suspensoes">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Atestados</h3>
-                    <div class="value" id="stat-atestados">0</div>
-                </div>
+                <div class="stat-card"><h3>Postos Ativos</h3><div class="value" id="stat-postos">0</div></div>
+                <div class="stat-card"><h3>Efetivo Total</h3><div class="value" id="stat-agentes">0</div></div>
+                <div class="stat-card alert"><h3>Faltas</h3><div class="value" id="stat-faltas">0</div></div>
+                <div class="stat-card alert"><h3>Suspensões</h3><div class="value" id="stat-suspensoes">0</div></div>
+                <div class="stat-card"><h3>Atestados</h3><div class="value" id="stat-atestados">0</div></div>
             </div>
-
             <div class="grid-cards">
                 <div class="stat-card" style="text-align: left; grid-column: span 2; border-bottom: none;">
-                    <h3 style="margin-bottom: 15px;">
-                        <span class="material-icons" style="vertical-align: middle;">list</span>
-                        Lista de Unidades
-                    </h3>
+                    <h3 style="margin-bottom: 15px;"><span class="material-icons" style="vertical-align: middle;">list</span> Lista de Unidades</h3>
                     <div id="lista-unidades-gestao" style="font-size: 0.9rem; line-height: 1.8; color: var(--text-secondary);"></div>
                 </div>
             </div>
@@ -591,8 +460,12 @@
 
         <section id="dashboard">
             <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Painel Operacional (Hoje)</h2>
-                <div id="current-date" style="font-weight: bold; color: var(--accent);"></div>
+                <h2>Painel Operacional</h2>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button onclick="alterarDia(-1)">◀</button>
+                    <div id="current-date" style="font-weight: bold; color: var(--accent);"></div>
+                    <button onclick="alterarDia(1)">▶</button>
+                </div>
             </header>
             <div id="cards-container" class="grid-cards"></div>
         </section>
@@ -601,7 +474,7 @@
             <h2>Gestão de Unidades</h2>
             <div class="form-container">
                 <input type="text" id="posto-nome" placeholder="Nome da Unidade">
-                <input type="number" id="posto-minimo" placeholder="Mínimo" min="1" max="50" style="min-width: 100px;">
+                <input type="number" id="posto-minimo" placeholder="Mínimo" min="1" max="50">
                 <button class="btn-add" onclick="addPosto()">Criar Posto</button>
             </div>
             <div id="lista-postos"></div>
@@ -619,7 +492,7 @@
                     <option value="6x1">6x1</option>
                     <option value="4x2">4x2</option>
                 </select>
-                <input type="date" id="func-inicio" title="Data de Início do Ciclo">
+                <input type="date" id="func-inicio">
                 <button class="btn-add" onclick="addAgente()">Cadastrar</button>
             </div>
             <div id="lista-equipe"></div>
@@ -628,7 +501,7 @@
         <div id="modal-escala" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 id="modal-titulo" style="margin: 0;">Escala</h3>
+                    <h3 id="modal-titulo">Escala</h3>
                     <span class="close" onclick="closeModal()">&times;</span>
                 </div>
                 <div class="escala-container" id="escala-content"></div>
@@ -641,15 +514,10 @@
                     <h3 id="modal-edit-titulo">Editar Agente</h3>
                     <span class="close" onclick="closeEditModal()">&times;</span>
                 </div>
-
-                <form class="modal-edit-form" id="form-edit-agente">
+                <form class="form-container" id="form-edit-agente">
                     <input type="hidden" id="edit-agente-id">
                     <input type="text" id="edit-agente-nome" placeholder="Nome Completo" required>
-
-                    <select id="edit-agente-posto" required>
-                        <option value="">Selecione o Posto...</option>
-                    </select>
-
+                    <select id="edit-agente-posto" required></select>
                     <select id="edit-agente-escala" required>
                         <option value="12x36">12x36</option>
                         <option value="2x1">2x1</option>
@@ -657,13 +525,11 @@
                         <option value="6x1">6x1</option>
                         <option value="4x2">4x2</option>
                     </select>
-
                     <input type="date" id="edit-agente-inicio" required>
                 </form>
-
-                <div class="modal-buttons">
-                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancelar</button>
-                    <button type="button" class="btn-save" onclick="saveEditAgente()">Salvar</button>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; padding: 10px;">
+                    <button class="btn-cancel" onclick="closeEditModal()">Cancelar</button>
+                    <button class="btn-save" onclick="saveEditAgente()">Salvar</button>
                 </div>
             </div>
         </div>
@@ -675,67 +541,48 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let localDB = { postos: [], equipe: [], ocorrencias: {} };
-        let agenteEditando = null;
+        let dataSelecionada = new Date();
 
-        function possuiCoberturaAtiva(posto) {
-            return Boolean(posto?.cobertura && posto.cobertura.trim() !== '');
+        function formatarDataISO(data) {
+            const ano = data.getFullYear();
+            const mes = String(data.getMonth() + 1).padStart(2, '0');
+            const dia = String(data.getDate()).padStart(2, '0');
+            return `${ano}-${mes}-${dia}`;
         }
+
+        function atualizarDataDisplay() {
+            document.getElementById('current-date').innerText =
+                dataSelecionada.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+        }
+
+        function alterarDia(dias) {
+            dataSelecionada.setDate(dataSelecionada.getDate() + dias);
+            atualizarDataDisplay();
+            renderAll();
+        }
+
+        function possuiCoberturaAtiva(posto) { return Boolean(posto?.cobertura && posto.cobertura.trim() !== ''); }
 
         function getResumoPosto(posto, dataRef) {
             const ags = localDB.equipe.filter(e => e.posto_id === posto.id);
             const minimo = posto.minimo || 1;
-
             const servicoNoPosto = ags.filter(a => {
-                const siglaAtual = localDB.ocorrencias[`${a.id}-${dataRef}`] ||
-                    (isTrabalho(dataRef, a.inicio, a.escala) ? 'T' : 'FO');
-
+                const siglaAtual = localDB.ocorrencias[`${a.id}-${dataRef}`] || (isTrabalho(dataRef, a.inicio, a.escala) ? 'T' : 'FO');
                 return ['T', 'HI', 'C', 'FG'].includes(siglaAtual);
             });
-
             const coberturaAtiva = possuiCoberturaAtiva(posto);
-
             const totalEfetivo = servicoNoPosto.length + (coberturaAtiva ? 1 : 0);
-            const temMinimoSuficiente = totalEfetivo >= minimo;
-
-            return {
-                ags,
-                minimo,
-                servicoNoPosto,
-                coberturaAtiva,
-                totalEfetivo,
-                temMinimoSuficiente
-            };
+            return { ags, minimo, servicoNoPosto, coberturaAtiva, totalEfetivo, temMinimoSuficiente: totalEfetivo >= minimo };
         }
 
         async function definirCobertura(postoId) {
             const posto = localDB.postos.find(p => p.id === postoId);
-            if (!posto) return;
-
-            const nomeCobertura = prompt(
-                `Quem irá cobrir o posto "${posto.nome}"?\n\nDeixe vazio para remover a cobertura.`,
-                posto.cobertura || ''
-            );
-
-            if (nomeCobertura === null) {
-                return;
-            }
-
-            const coberturaNormalizada = nomeCobertura.trim();
-
-            try {
-                const { error } = await _supabase
-                    .from('postos')
-                    .update({
-                        cobertura: coberturaNormalizada
-                    })
-                    .eq('id', postoId);
-
-                if (error) throw error;
-
-                await sync();
-            } catch (error) {
-                console.error('Erro ao salvar cobertura:', error);
-                alert('Erro ao salvar cobertura');
+            const nome = prompt(`Quem cobrirá o posto "${posto.nome}"?`, posto.cobertura || '');
+            if (nome !== null) {
+                try {
+                    await _supabase.from('postos').update({ cobertura: nome.trim() }).eq('id', postoId);
+                    await sync();
+                } catch (err) { console.error(err); }
             }
         }
 
@@ -744,28 +591,19 @@
                 const { data: p } = await _supabase.from('postos').select('*').order('nome');
                 const { data: e } = await _supabase.from('equipe').select('*').order('nome');
                 const { data: o } = await _supabase.from('ocorrencias').select('*');
-
                 localDB.postos = p || [];
                 localDB.equipe = e || [];
                 localDB.ocorrencias = {};
-
-                o?.forEach(occ => {
-                    localDB.ocorrencias[`${occ.agente_id}-${occ.data}`] = occ.sigla;
-                });
-
+                o?.forEach(occ => { localDB.ocorrencias[`${occ.agente_id}-${occ.data}`] = occ.sigla; });
                 renderAll();
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         function isTrabalho(data, inicio, escala) {
             const dI = new Date(inicio + 'T00:00:00');
             const dA = new Date(data + 'T00:00:00');
             const diff = Math.floor((dA - dI) / 86400000);
-
             if (diff < 0) return false;
-
             switch (escala) {
                 case '12x36': return diff % 2 === 0;
                 case '2x1': return diff % 3 < 2;
@@ -776,130 +614,9 @@
             }
         }
 
-        async function addPosto() {
-            const n = document.getElementById('posto-nome').value.trim();
-            const m = parseInt(document.getElementById('posto-minimo').value) || 1;
-
-            if (!n) return alert("Digite o nome do posto");
-            if (m < 1 || m > 50) return alert("Mínimo deve ser entre 1 e 50");
-
-            await _supabase.from('postos').insert([{ nome: n, minimo: m, cobertura: '' }]);
-
-            document.getElementById('posto-nome').value = '';
-            document.getElementById('posto-minimo').value = '';
-
-            sync();
-        }
-
-        async function editMinimo(postoId) {
-            const posto = localDB.postos.find(p => p.id === postoId);
-            if (!posto) return;
-
-            const novoMinimo = prompt(`Mínimo atual: ${posto.minimo}\\nDigite novo mínimo (1-50):`, posto.minimo);
-            const m = parseInt(novoMinimo);
-
-            if (isNaN(m) || m < 1 || m > 50) return alert("Mínimo inválido (1-50)");
-
-            await _supabase.from('postos').update({ minimo: m }).eq('id', postoId);
-            sync();
-        }
-
-        async function removePosto(id) {
-            if (confirm("Excluir posto?")) {
-                await _supabase.from('postos').delete().eq('id', id);
-                sync();
-            }
-        }
-
-        async function addAgente() {
-            const n = document.getElementById('func-nome').value.trim();
-            const p = document.getElementById('func-posto-select').value;
-            const e = document.getElementById('func-escala').value;
-            const i = document.getElementById('func-inicio').value;
-
-            if (!n || !p || !i) return alert("Preencha todos os campos");
-
-            await _supabase.from('equipe').insert([{
-                nome: n,
-                posto_id: p,
-                escala: e,
-                inicio: i
-            }]);
-
-            document.getElementById('func-nome').value = '';
-            document.getElementById('func-posto-select').value = '';
-            document.getElementById('func-inicio').value = '';
-
-            sync();
-        }
-
-        function editAgente(id) {
-            agenteEditando = localDB.equipe.find(a => a.id === id);
-            if (!agenteEditando) return;
-
-            const postoSelect = document.getElementById('edit-agente-posto');
-            postoSelect.innerHTML =
-                '<option value="">Selecione o Posto...</option>' +
-                localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-
-            document.getElementById('edit-agente-id').value = agenteEditando.id;
-            document.getElementById('edit-agente-nome').value = agenteEditando.nome;
-            document.getElementById('edit-agente-posto').value = agenteEditando.posto_id;
-            document.getElementById('edit-agente-escala').value = agenteEditando.escala;
-            document.getElementById('edit-agente-inicio').value = agenteEditando.inicio;
-            document.getElementById('modal-edit-titulo').textContent = `Editando: ${agenteEditando.nome}`;
-
-            document.getElementById('modal-edit-agente').style.display = 'block';
-        }
-
-        async function saveEditAgente() {
-            const id = document.getElementById('edit-agente-id').value;
-            const nome = document.getElementById('edit-agente-nome').value.trim();
-            const posto_id = document.getElementById('edit-agente-posto').value;
-            const escala = document.getElementById('edit-agente-escala').value;
-            const inicio = document.getElementById('edit-agente-inicio').value;
-
-            if (!nome || !posto_id || !escala || !inicio) {
-                return alert('Preencha todos os campos');
-            }
-
-            try {
-                await _supabase.from('equipe').update({
-                    nome,
-                    posto_id,
-                    escala,
-                    inicio
-                }).eq('id', id);
-
-                closeEditModal();
-                sync();
-                alert('Agente atualizado com sucesso!');
-            } catch (error) {
-                console.error('Erro ao salvar:', error);
-                alert('Erro ao salvar agente');
-            }
-        }
-
-        function closeEditModal() {
-            document.getElementById('modal-edit-agente').style.display = 'none';
-            agenteEditando = null;
-            document.getElementById('form-edit-agente').reset();
-        }
-
-        async function removeAgente(id) {
-            if (confirm("Remover agente?")) {
-                await _supabase.from('equipe').delete().eq('id', id);
-                sync();
-            }
-        }
-
         function renderAll() {
-            const hoje = new Date().toISOString().split('T')[0];
-
-            let totalFaltas = 0;
-            let totalSu = 0;
-            let totalAt = 0;
-
+            const hoje = formatarDataISO(dataSelecionada);
+            let totalFaltas = 0, totalSu = 0, totalAt = 0;
             localDB.equipe.forEach(ag => {
                 const s = localDB.ocorrencias[`${ag.id}-${hoje}`];
                 if (s === 'F') totalFaltas++;
@@ -913,241 +630,137 @@
             document.getElementById('stat-suspensoes').innerText = totalSu;
             document.getElementById('stat-atestados').innerText = totalAt;
 
-            document.getElementById('lista-unidades-gestao').innerHTML =
-                localDB.postos.map(p => `• ${p.nome} (${p.minimo || 1} mín.)`).join('<br>');
+            document.getElementById('lista-unidades-gestao').innerHTML = localDB.postos.map(p => `• ${p.nome} (${p.minimo || 1} mín.)`).join('<br>');
 
             const container = document.getElementById('cards-container');
             container.innerHTML = '';
-
             localDB.postos.forEach(p => {
-                const {
-                    minimo,
-                    servicoNoPosto,
-                    coberturaAtiva,
-                    totalEfetivo,
-                    temMinimoSuficiente
-                } = getResumoPosto(p, hoje);
-
-                const classesCard = [
-                    'card',
-                    totalEfetivo > 0 ? 'active-status' : '',
-                    coberturaAtiva ? 'cobertura-ativa' : '',
-                    !temMinimoSuficiente && !coberturaAtiva ? 'minimo-insuficiente' : ''
-                ].filter(Boolean).join(' ');
+                const { minimo, servicoNoPosto, coberturaAtiva, totalEfetivo, temMinimoSuficiente } = getResumoPosto(p, hoje);
+                const classesCard = ['card', totalEfetivo > 0 ? 'active-status' : '', coberturaAtiva ? 'cobertura-ativa' : '', !temMinimoSuficiente && !coberturaAtiva ? 'minimo-insuficiente' : ''].filter(Boolean).join(' ');
+                let statusText = '🔴 VAGO';
+                if (coberturaAtiva) statusText = '🟢 COBERTO';
+                else if (!temMinimoSuficiente) statusText = `⚠️ ABAIXO DO MÍNIMO (${minimo})`;
+                else if (servicoNoPosto.length > 0) statusText = '🟢 OPERACIONAL';
+                let badgeClass = coberturaAtiva ? 'cobertura-badge' : (!temMinimoSuficiente ? 'minimo-alerta' : '');
 
                 const card = document.createElement('div');
                 card.className = classesCard;
-
-                let statusText = '🔴 VAGO';
-
-                if (coberturaAtiva) {
-                    statusText = '🟢 COBERTO';
-                } else if (!temMinimoSuficiente) {
-                    statusText = `⚠️ ABAIXO DO MÍNIMO (${minimo})`;
-                } else if (servicoNoPosto.length > 0) {
-                    statusText = '🟢 OPERACIONAL';
-                }
-
-                let badgeClass = '';
-                if (coberturaAtiva) {
-                    badgeClass = 'cobertura-badge';
-                } else if (!temMinimoSuficiente) {
-                    badgeClass = 'minimo-alerta';
-                }
-
-                let conteudoCard = `
-                    <h3>${p.nome}</h3>
-                    <p>${statusText}</p>
-                    <div class="card-count ${badgeClass}">
-                        ${totalEfetivo}/${minimo} EFETIVO
-                    </div>
-                `;
-
-                if (coberturaAtiva) {
-                    conteudoCard += `
-                        <div class="cobertura-info">
-                            Cobertura: ${p.cobertura}
-                        </div>
-                    `;
-                }
-
-                if (!temMinimoSuficiente || coberturaAtiva) {
-                    conteudoCard += `
-                        <button class="btn-cobertura" onclick="event.stopPropagation(); definirCobertura('${p.id}')">
-                            ${coberturaAtiva ? 'Editar Cobertura' : 'Definir Cobertura'}
-                        </button>
-                    `;
-                }
-
-                card.innerHTML = conteudoCard;
+                card.innerHTML = `<h3>${p.nome}</h3><p>${statusText}</p><div class="card-count ${badgeClass}">${totalEfetivo}/${minimo} EFETIVO</div>
+                    ${coberturaAtiva ? `<div class="cobertura-info">Cobertura: ${p.cobertura}</div>` : ''}
+                    ${(!temMinimoSuficiente || coberturaAtiva) ? `<button class="btn-cobertura" onclick="event.stopPropagation(); definirCobertura('${p.id}')">${coberturaAtiva ? 'Editar Cobertura' : 'Definir Cobertura'}</button>` : ''}`;
                 card.onclick = () => openEscala(p.id);
                 container.appendChild(card);
             });
 
-            const postoSelect = document.getElementById('func-posto-select');
-            postoSelect.innerHTML =
-                '<option value="">Posto...</option>' +
-                localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            const selectPostos = localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            document.getElementById('func-posto-select').innerHTML = '<option value="">Posto...</option>' + selectPostos;
 
-            document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => {
-                const {
-                    minimo,
-                    coberturaAtiva,
-                    totalEfetivo,
-                    temMinimoSuficiente
-                } = getResumoPosto(p, hoje);
+            document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => `
+                <div class="list-item"><span>${p.nome} <strong>(${p.minimo} mín.)</strong></span>
+                <div><button class="btn-edit" onclick="editMinimo('${p.id}')">Mínimo</button>
+                <button class="btn-remove" onclick="removePosto('${p.id}')">Excluir</button></div></div>`).join('');
 
-                let statusMinimo = '⚠️ ABAIXO DO MÍNIMO';
-                if (coberturaAtiva) {
-                    statusMinimo = '🟦 COBERTO';
-                } else if (temMinimoSuficiente) {
-                    statusMinimo = '✅ OK';
-                }
-
-                return `
-                    <div class="list-item">
-                        <span>
-                            ${p.nome} <strong>(${minimo} mín.) ${statusMinimo}</strong><br>
-                            <small>
-                                Efetivo operacional: ${totalEfetivo}/${minimo}
-                                ${coberturaAtiva ? ` | Cobertura: ${p.cobertura}` : ''}
-                            </small>
-                        </span>
-                        <div>
-                            <button class="btn-edit" onclick="editMinimo('${p.id}')" title="Editar mínimo">Editar Mín.</button>
-                            <button class="btn-remove" onclick="removePosto('${p.id}')">Excluir</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('lista-equipe').innerHTML = localDB.equipe.map(e => {
-                const posto = localDB.postos.find(p => p.id === e.posto_id);
-
-                return `
-                    <div class="list-item">
-                        <span>${e.nome} - ${posto ? posto.nome : 'Sem posto'} (${e.escala} | ${e.inicio})</span>
-                        <div>
-                            <button class="btn-edit" onclick="editAgente('${e.id}')" title="Editar agente">Editar</button>
-                            <button class="btn-remove" onclick="removeAgente('${e.id}')">Remover</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            document.getElementById('lista-equipe').innerHTML = localDB.equipe.map(e => `
+                <div class="list-item"><span>${e.nome} - ${localDB.postos.find(p => p.id === e.posto_id)?.nome || 'S/P'} (${e.escala})</span>
+                <div><button class="btn-edit" onclick="editAgente('${e.id}')">Editar</button>
+                <button class="btn-remove" onclick="removeAgente('${e.id}')">Remover</button></div></div>`).join('');
         }
 
         function openEscala(postoId) {
             const posto = localDB.postos.find(p => p.id === postoId);
             if (!posto) return;
-
-            document.getElementById('modal-titulo').innerText =
-                `Escala: ${posto.nome} (Mínimo: ${posto.minimo || 1})`;
-
-            const agora = new Date();
-            const ano = agora.getFullYear();
-            const mes = agora.getMonth() + 1;
+            document.getElementById('modal-titulo').innerText = `Escala: ${posto.nome}`;
+            const agora = new Date(dataSelecionada), ano = agora.getFullYear(), mes = agora.getMonth() + 1;
             const diasMes = new Date(ano, mes, 0).getDate();
-
             const agentesPosto = localDB.equipe.filter(e => e.posto_id === postoId);
-
-            let html = '';
-
-            if (agentesPosto.length === 0) {
-                html = `<div class="agente-bloco">
-                    <div class="agente-header">Nenhum agente vinculado a este posto</div>
-                </div>`;
-            } else {
-                agentesPosto.forEach(agente => {
-                    html += `
-                        <div class="agente-bloco" data-agente-id="${agente.id}">
-                            <div class="agente-header">${agente.nome} (${agente.escala})</div>
-                            <div class="escala-linhas">
-                                <div class="escala-row">
-                                    ${Array.from({ length: diasMes }, (_, i) =>
-                                        `<div class="dia-cell" data-dia="${i + 1}">${i + 1}</div>`
-                                    ).join('')}
-                                </div>
-
-                                <div class="escala-row">
-                                    ${Array.from({ length: diasMes }, (_, i) => {
-                                        const dia = String(i + 1).padStart(2, '0');
-                                        const data = `${ano}-${String(mes).padStart(2, '0')}-${dia}`;
-                                        const sigla = localDB.ocorrencias[`${agente.id}-${data}`] ||
-                                            (isTrabalho(data, agente.inicio, agente.escala) ? 'T' : 'FO');
-
-                                        return `
-                                            <div class="sigla-cell sigla-${sigla}"
-                                                data-agente="${agente.id}"
-                                                data-data="${data}"
-                                                data-posto="${postoId}"
-                                                title="${sigla} - ${data}">
-                                                ${sigla}
-                                            </div>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            document.getElementById('escala-content').innerHTML = html;
-
-            document.querySelectorAll('.sigla-cell').forEach(cell => {
-                cell.onclick = function () {
-                    const agenteId = this.dataset.agente;
-                    const data = this.dataset.data;
-                    const posto = this.dataset.posto;
-                    setSiglaVertical(agenteId, data, posto);
-                };
+            let html = agentesPosto.length ? '' : '<div class="agente-header">Nenhum agente vinculado</div>';
+            agentesPosto.forEach(agente => {
+                html += `<div class="agente-bloco"><div class="agente-header">${agente.nome} (${agente.escala})</div>
+                    <div class="escala-row">${Array.from({ length: diasMes }, (_, i) => `<div class="dia-cell">${i + 1}</div>`).join('')}</div>
+                    <div class="escala-row">${Array.from({ length: diasMes }, (_, i) => {
+                        const dStr = `${ano}-${String(mes).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`;
+                        const sigla = localDB.ocorrencias[`${agente.id}-${dStr}`] || (isTrabalho(dStr, agente.inicio, agente.escala) ? 'T' : 'FO');
+                        return `<div class="sigla-cell sigla-${sigla}" onclick="setSiglaVertical('${agente.id}', '${dStr}', '${postoId}')">${sigla}</div>`;
+                    }).join('')}</div></div>`;
             });
-
+            document.getElementById('escala-content').innerHTML = html;
             document.getElementById('modal-escala').style.display = 'block';
         }
 
         async function setSiglaVertical(agenteId, data, postoId) {
-            const mensagem =
-                `DIGITE A SIGLA:\n\n` +
-                `T  = Trabalho\n` +
-                `FO = Folga\n` +
-                `FG = Folguista\n` +
-                `F  = Falta\n` +
-                `SU = Suspensão\n` +
-                `HI = Hora Extra\n` +
-                `C  = Cobertura\n` +
-                `AT = Atestado\n` +
-                `FE = Férias\n` +
-                `AF = Afastamento\n` +
-                `TC = Treinamento/Curso\n` +
-                `L  = Limpar\n\n` +
-                `(Deixe vazio ou use L para limpar)`;
-
-            const sigla = prompt(mensagem)?.toUpperCase().trim();
-
-            if (!sigla || sigla === '') {
-                await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data });
-                await sync();
-                openEscala(postoId);
-                return;
-            }
-
-            if (sigla === 'L') {
-                await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data });
-            } else {
-                await _supabase.from('ocorrencias').upsert({
-                    agente_id: agenteId,
-                    data,
-                    sigla
-                });
-            }
-
-            await sync();
-            openEscala(postoId);
+            const sigla = prompt("SIGLA: T, FO, FG, F, SU, HI, C, AT, FE, AF, TC ou L (Limpar)")?.toUpperCase().trim();
+            if (sigla === 'L') { try { await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data }); } catch(err){console.error(err);} }
+            else if (sigla) { try { await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data, sigla }); } catch(err){console.error(err);} }
+            await sync(); openEscala(postoId);
         }
 
-        function closeModal() {
-            document.getElementById('modal-escala').style.display = 'none';
+        // --- IMPLEMENTAÇÃO DE MANUTENÇÃO (CRUD & VALIDATION) ---
+
+        async function addPosto() {
+            const n = document.getElementById('posto-nome'), m = document.getElementById('posto-minimo');
+            if (n.value.trim() && m.value) {
+                try {
+                    const { error } = await _supabase.from('postos').insert([{ nome: n.value.trim(), minimo: parseInt(m.value) }]);
+                    if (error) throw error;
+                    n.value = ""; m.value = ""; await sync();
+                } catch (err) { console.error(err); }
+            }
+        }
+
+        async function addAgente() {
+            const n = document.getElementById('func-nome'), p = document.getElementById('func-posto-select'), e = document.getElementById('func-escala'), i = document.getElementById('func-inicio');
+            if (n.value.trim() && p.value && i.value) {
+                try {
+                    const { error } = await _supabase.from('equipe').insert([{ nome: n.value.trim(), posto_id: p.value, escala: e.value, inicio: i.value }]);
+                    if (error) throw error;
+                    n.value = ""; p.value = ""; i.value = ""; await sync();
+                } catch (err) { console.error(err); }
+            }
+        }
+
+        async function removePosto(id) {
+            if (confirm("Tem certeza?")) {
+                try { await _supabase.from('postos').delete().eq('id', id); await sync(); } catch (err) { console.error(err); }
+            }
+        }
+
+        async function removeAgente(id) {
+            if (confirm("Tem certeza?")) {
+                try { await _supabase.from('equipe').delete().eq('id', id); await sync(); } catch (err) { console.error(err); }
+            }
+        }
+
+        async function editMinimo(id) {
+            const p = localDB.postos.find(x => x.id === id);
+            const nMin = prompt(`Novo mínimo para ${p.nome}:`, p.minimo);
+            if (nMin && !isNaN(nMin)) {
+                try { await _supabase.from('postos').update({ minimo: parseInt(nMin) }).eq('id', id); await sync(); } catch (err) { console.error(err); }
+            }
+        }
+
+        function editAgente(id) {
+            const e = localDB.equipe.find(x => x.id === id);
+            document.getElementById('edit-agente-id').value = e.id;
+            document.getElementById('edit-agente-nome').value = e.nome;
+            document.getElementById('edit-agente-escala').value = e.escala;
+            document.getElementById('edit-agente-inicio').value = e.inicio;
+            const s = document.getElementById('edit-agente-posto');
+            s.innerHTML = document.getElementById('func-posto-select').innerHTML;
+            s.value = e.posto_id;
+            document.getElementById('modal-edit-agente').style.display = 'block';
+        }
+
+        async function saveEditAgente() {
+            const id = document.getElementById('edit-agente-id').value;
+            const dados = {
+                nome: document.getElementById('edit-agente-nome').value.trim(),
+                posto_id: document.getElementById('edit-agente-posto').value,
+                escala: document.getElementById('edit-agente-escala').value,
+                inicio: document.getElementById('edit-agente-inicio').value
+            };
+            if (dados.nome && dados.posto_id && dados.inicio) {
+                try { await _supabase.from('equipe').update(dados).eq('id', id); closeEditModal(); await sync(); } catch (err) { console.error(err); }
+            }
         }
 
         function showSection(id) {
@@ -1157,24 +770,11 @@
             document.getElementById('nav-' + id).classList.add('active-nav');
         }
 
-        window.onclick = function (event) {
-            document.querySelectorAll('.modal').forEach(modal => {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-        };
+        function closeModal() { document.getElementById('modal-escala').style.display = 'none'; }
+        function closeEditModal() { document.getElementById('modal-edit-agente').style.display = 'none'; }
 
-        window.onload = () => {
-            document.getElementById('current-date').innerText =
-                new Date().toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
-                });
-
-            sync();
-        };
+        window.onload = () => { atualizarDataDisplay(); sync(); };
+        window.onclick = (e) => { if (e.target.className === 'modal') { closeModal(); closeEditModal(); } };
     </script>
 </body>
 </html>
