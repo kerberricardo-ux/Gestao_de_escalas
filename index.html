@@ -540,7 +540,7 @@
         const SB_KEY = 'sb_publishable_K_SPgZndx26WP11_tt6fsw_dmsD7Zou';
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        let localDB = { postos: [], equipe: [], ocorrencias: {} };
+        let localDB = { postos: [], equipe: [], ocorrencias: {}, coberturas: {} };
         let dataSelecionada = new Date();
 
         function formatarDataISO(data) {
@@ -561,8 +561,12 @@
             renderAll();
         }
 
-        function possuiCoberturaAtiva(posto) { return Boolean(posto?.cobertura && posto.cobertura.trim() !== ''); }
+        // ATUALIZADO: Verificação por Data
+        function possuiCoberturaAtiva(postoId, data) {
+            return Boolean(localDB.coberturas[`${postoId}-${data}`]);
+        }
 
+        // ATUALIZADO: getResumoPosto agora recebe dataRef
         function getResumoPosto(posto, dataRef) {
             const ags = localDB.equipe.filter(e => e.posto_id === posto.id);
             const minimo = posto.minimo || 1;
@@ -570,17 +574,26 @@
                 const siglaAtual = localDB.ocorrencias[`${a.id}-${dataRef}`] || (isTrabalho(dataRef, a.inicio, a.escala) ? 'T' : 'FO');
                 return ['T', 'HI', 'C', 'FG'].includes(siglaAtual);
             });
-            const coberturaAtiva = possuiCoberturaAtiva(posto);
+            const coberturaAtiva = possuiCoberturaAtiva(posto.id, dataRef);
             const totalEfetivo = servicoNoPosto.length + (coberturaAtiva ? 1 : 0);
             return { ags, minimo, servicoNoPosto, coberturaAtiva, totalEfetivo, temMinimoSuficiente: totalEfetivo >= minimo };
         }
 
+        // ATUALIZADO: Salva cobertura vinculada ao dia
         async function definirCobertura(postoId) {
             const posto = localDB.postos.find(p => p.id === postoId);
-            const nome = prompt(`Quem cobrirá o posto "${posto.nome}"?`, posto.cobertura || '');
+            const dataIso = formatarDataISO(dataSelecionada);
+            const nomeAtual = localDB.coberturas[`${postoId}-${dataIso}`] || '';
+            
+            const nome = prompt(`Quem cobrirá o posto "${posto.nome}" no dia ${dataSelecionada.toLocaleDateString()}?`, nomeAtual);
+            
             if (nome !== null) {
                 try {
-                    await _supabase.from('postos').update({ cobertura: nome.trim() }).eq('id', postoId);
+                    if (nome.trim() === '') {
+                        await _supabase.from('coberturas').delete().match({ posto_id: postoId, data: dataIso });
+                    } else {
+                        await _supabase.from('coberturas').upsert({ posto_id: postoId, data: dataIso, nome: nome.trim() });
+                    }
                     await sync();
                 } catch (err) { console.error(err); }
             }
@@ -591,10 +604,16 @@
                 const { data: p } = await _supabase.from('postos').select('*').order('nome');
                 const { data: e } = await _supabase.from('equipe').select('*').order('nome');
                 const { data: o } = await _supabase.from('ocorrencias').select('*');
+                const { data: c } = await _supabase.from('coberturas').select('*'); // ATUALIZADO: Busca coberturas
+
                 localDB.postos = p || [];
                 localDB.equipe = e || [];
                 localDB.ocorrencias = {};
+                localDB.coberturas = {}; // ATUALIZADO: Inicializa coberturas
+
                 o?.forEach(occ => { localDB.ocorrencias[`${occ.agente_id}-${occ.data}`] = occ.sigla; });
+                c?.forEach(cob => { localDB.coberturas[`${cob.posto_id}-${cob.data}`] = cob.nome; }); // ATUALIZADO: Popula coberturas
+
                 renderAll();
             } catch (err) { console.error(err); }
         }
@@ -637,16 +656,21 @@
             localDB.postos.forEach(p => {
                 const { minimo, servicoNoPosto, coberturaAtiva, totalEfetivo, temMinimoSuficiente } = getResumoPosto(p, hoje);
                 const classesCard = ['card', totalEfetivo > 0 ? 'active-status' : '', coberturaAtiva ? 'cobertura-ativa' : '', !temMinimoSuficiente && !coberturaAtiva ? 'minimo-insuficiente' : ''].filter(Boolean).join(' ');
+                
                 let statusText = '🔴 VAGO';
                 if (coberturaAtiva) statusText = '🟢 COBERTO';
                 else if (!temMinimoSuficiente) statusText = `⚠️ ABAIXO DO MÍNIMO (${minimo})`;
                 else if (servicoNoPosto.length > 0) statusText = '🟢 OPERACIONAL';
+                
                 let badgeClass = coberturaAtiva ? 'cobertura-badge' : (!temMinimoSuficiente ? 'minimo-alerta' : '');
+                
+                // ATUALIZADO: Busca nome da cobertura no localDB
+                const nomeCobertura = localDB.coberturas[`${p.id}-${hoje}`] || '';
 
                 const card = document.createElement('div');
                 card.className = classesCard;
                 card.innerHTML = `<h3>${p.nome}</h3><p>${statusText}</p><div class="card-count ${badgeClass}">${totalEfetivo}/${minimo} EFETIVO</div>
-                    ${coberturaAtiva ? `<div class="cobertura-info">Cobertura: ${p.cobertura}</div>` : ''}
+                    ${coberturaAtiva ? `<div class="cobertura-info">Cobertura: ${nomeCobertura}</div>` : ''}
                     ${(!temMinimoSuficiente || coberturaAtiva) ? `<button class="btn-cobertura" onclick="event.stopPropagation(); definirCobertura('${p.id}')">${coberturaAtiva ? 'Editar Cobertura' : 'Definir Cobertura'}</button>` : ''}`;
                 card.onclick = () => openEscala(p.id);
                 container.appendChild(card);
@@ -693,8 +717,6 @@
             else if (sigla) { try { await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data, sigla }); } catch(err){console.error(err);} }
             await sync(); openEscala(postoId);
         }
-
-        // --- IMPLEMENTAÇÃO DE MANUTENÇÃO (CRUD & VALIDATION) ---
 
         async function addPosto() {
             const n = document.getElementById('posto-nome'), m = document.getElementById('posto-minimo');
