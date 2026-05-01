@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -106,7 +107,6 @@
             to { opacity: 1; }
         }
 
-        /* Estilo da Barra de Pesquisa */
         .search-container {
             flex: 1;
             max-width: 400px;
@@ -546,7 +546,6 @@
         <section id="equipe">
             <div class="stats-header">
                 <h2>Gestão de Agentes</h2>
-                <!-- BARRA DE PESQUISA NA EQUIPE -->
                 <div class="search-container">
                     <span class="material-icons">search</span>
                     <input type="text" id="search-equipe" class="search-input" placeholder="Pesquisar por nome ou posto..." onkeyup="filterEquipe()">
@@ -569,7 +568,6 @@
             <div id="lista-equipe"></div>
         </section>
 
-        <!-- Modais permanecem iguais -->
         <div id="modal-escala" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -693,7 +691,6 @@
             });
         }
 
-        // --- NOVA FUNÇÃO FILTRO EQUIPE ---
         function filterEquipe() {
             const termo = document.getElementById('search-equipe').value.toLowerCase();
             const items = document.querySelectorAll('#lista-equipe .list-item');
@@ -756,16 +753,20 @@
 
         function renderAll() {
             const hoje = formatarDataISO(dataSelecionada);
-            renderGerencial();
 
+            // CORREÇÃO: Atualiza o seletor de postos do Gerencial para garantir consistência
             const fPosto = document.getElementById('filtro-posto-gerencial');
-            if (fPosto.options.length <= 1) {
-                localDB.postos.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p.id; opt.text = p.nome;
-                    fPosto.add(opt);
-                });
-            }
+            const valorSelecionado = fPosto.value;
+            fPosto.innerHTML = '<option value="">Todas as Unidades</option>';
+            localDB.postos.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id; opt.text = p.nome;
+                fPosto.add(opt);
+            });
+            fPosto.value = valorSelecionado;
+
+            // CORREÇÃO: Força renderização do painel gerencial a cada sync
+            renderGerencial();
 
             const container = document.getElementById('cards-container');
             container.innerHTML = '';
@@ -805,7 +806,7 @@
                 <div><button class="btn-edit" onclick="editAgente('${e.id}')">Editar</button>
                 <button class="btn-remove" onclick="removeAgente('${e.id}')">Remover</button></div></div>`).join('');
             
-            filterEquipe(); // Aplica filtro na equipe ao renderizar
+            filterEquipe();
         }
 
         function openEscala(postoId) {
@@ -833,7 +834,8 @@
             const sigla = prompt("SIGLA: T, FO, FG, F, SU, HI, C, AT, FE, AF, TC ou L (Limpar)")?.toUpperCase().trim();
             if (sigla === 'L') { try { await _supabase.from('ocorrencias').delete().match({ agente_id: agenteId, data }); } catch(err){console.error(err);} }
             else if (sigla) { try { await _supabase.from('ocorrencias').upsert({ agente_id: agenteId, data, sigla }); } catch(err){console.error(err);} }
-            await sync(); openEscala(postoId);
+            await sync(); 
+            openEscala(postoId); // Reabre o modal para refletir a sigla mudada visualmente
         }
 
         async function definirCobertura(postoId) {
@@ -910,3 +912,5 @@
     </script>
 </body>
 </html>
+
+
