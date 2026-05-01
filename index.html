@@ -106,11 +106,46 @@
             to { opacity: 1; }
         }
 
+        /* Estilo da Barra de Pesquisa */
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+            margin: 0 20px;
+        }
+
+        .search-container .material-icons {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: #1e1e1e;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 10px 15px 10px 40px;
+            border-radius: 20px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(0, 230, 118, 0.2);
+        }
+
         .stats-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .stats-grid {
@@ -142,17 +177,6 @@
 
         .stat-card.alert {
             border-bottom-color: var(--danger);
-        }
-
-        .filter-select {
-            background: #2c2c2c;
-            color: var(--accent);
-            border: 1px solid var(--accent);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            outline: none;
         }
 
         .grid-cards {
@@ -413,6 +437,8 @@
             .content { margin-left: 0; width: 100%; padding: 15px; }
             .sidebar { transform: translateX(-100%); }
             .escala-row { grid-template-columns: repeat(15, 1fr); }
+            .stats-header { flex-direction: column; align-items: flex-start; }
+            .search-container { margin: 10px 0; max-width: 100%; width: 100%; }
         }
     </style>
 </head>
@@ -492,12 +518,19 @@
         </section>
 
         <section id="dashboard">
-            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <header class="stats-header">
                 <h2>Painel Operacional</h2>
+                
+                <!-- NOVA BARRA DE PESQUISA -->
+                <div class="search-container">
+                    <span class="material-icons">search</span>
+                    <input type="text" id="search-postos" class="search-input" placeholder="Pesquisar posto ou unidade..." onkeyup="filterCards()">
+                </div>
+
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <button onclick="alterarDia(-1)">◀</button>
+                    <button onclick="alterarDia(-1)" style="background:none; border:none; color:var(--accent); cursor:pointer;">◀</button>
                     <div id="current-date" style="font-weight: bold; color: var(--accent);"></div>
-                    <button onclick="alterarDia(1)">▶</button>
+                    <button onclick="alterarDia(1)" style="background:none; border:none; color:var(--accent); cursor:pointer;">▶</button>
                 </div>
             </header>
             <div id="cards-container" class="grid-cards"></div>
@@ -645,10 +678,23 @@
             }
         }
 
-        // --- NOVA FUNÇÃO PARA O RENDER GERENCIAL (EXPANDIDO) ---
+        // --- NOVA FUNÇÃO DE FILTRO ---
+        function filterCards() {
+            const termo = document.getElementById('search-postos').value.toLowerCase();
+            const cards = document.querySelectorAll('#cards-container .card');
+            
+            cards.forEach(card => {
+                const nomePosto = card.querySelector('h3').innerText.toLowerCase();
+                if (nomePosto.includes(termo)) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
         function renderGerencial() {
             const hoje = formatarDataISO(dataSelecionada);
-            const periodo = document.getElementById('filtro-periodo-gerencial').value;
             const postoFiltro = document.getElementById('filtro-posto-gerencial').value;
             const ocorrenciaFiltro = document.getElementById('filtro-ocorrencia-gerencial').value;
 
@@ -656,7 +702,6 @@
             let ausentesHtml = '';
             let coberturasHtml = '';
 
-            // Dados das Unidades
             const unidadesHtml = localDB.postos
                 .filter(p => !postoFiltro || p.id === postoFiltro)
                 .map(p => {
@@ -667,17 +712,14 @@
             
             document.getElementById('lista-unidades-gestao').innerHTML = unidadesHtml || 'Nenhuma unidade encontrada.';
 
-            // Processamento de Pessoal (Dia Selecionado)
             localDB.equipe.forEach(ag => {
                 const sigla = localDB.ocorrencias[`${ag.id}-${hoje}`];
                 const postoAgente = localDB.postos.find(p => p.id === ag.posto_id);
                 
-                // Contabilização Stats
                 if (sigla === 'F') totalFaltas++;
                 if (sigla === 'SU') totalSu++;
                 if (sigla === 'AT') totalAt++;
 
-                // Lista de Ausências por Filtro
                 if (['F', 'SU', 'AT', 'FE'].includes(sigla)) {
                     if (!ocorrenciaFiltro || sigla === ocorrenciaFiltro) {
                         ausentesHtml += `<div style="margin-bottom:3px;">[${sigla}] <strong>${ag.nome}</strong> (${postoAgente?.nome || 'Sem Posto'})</div>`;
@@ -685,7 +727,6 @@
                 }
             });
 
-            // Lista de Coberturas (Dia Selecionado)
             localDB.postos.forEach(p => {
                 const nomeCob = localDB.coberturas[`${p.id}-${hoje}`];
                 if (nomeCob) {
@@ -703,14 +744,10 @@
             document.getElementById('lista-coberturas-gerencial').innerHTML = coberturasHtml || '<small>Nenhuma cobertura registrada.</small>';
         }
 
-        // --- RENDER ALL ATUALIZADO PARA INTEGRAR O GERENCIAL ---
         function renderAll() {
             const hoje = formatarDataISO(dataSelecionada);
-            
-            // Render Painel Gerencial
             renderGerencial();
 
-            // Sincronizar Select de Postos no Filtro (apenas se estiver vazio)
             const fPosto = document.getElementById('filtro-posto-gerencial');
             if (fPosto.options.length <= 1) {
                 localDB.postos.forEach(p => {
@@ -720,7 +757,6 @@
                 });
             }
 
-            // Render Painel Operacional (Original Mantido)
             const container = document.getElementById('cards-container');
             container.innerHTML = '';
             localDB.postos.forEach(p => {
@@ -744,11 +780,12 @@
                 container.appendChild(card);
             });
 
-            // Atualizar Selects de Cadastro
+            // Aplica o filtro após renderizar, caso haja algo digitado
+            filterCards();
+
             const selectPostos = localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
             document.getElementById('func-posto-select').innerHTML = '<option value="">Posto...</option>' + selectPostos;
 
-            // Listagens Administrativas
             document.getElementById('lista-postos').innerHTML = localDB.postos.map(p => `
                 <div class="list-item"><span>${p.nome} <strong>(${p.minimo} mín.)</strong></span>
                 <div><button class="btn-edit" onclick="editMinimo('${p.id}')">Mínimo</button>
@@ -760,7 +797,6 @@
                 <button class="btn-remove" onclick="removeAgente('${e.id}')">Remover</button></div></div>`).join('');
         }
 
-        // --- MANTIDAS TODAS AS DEMAIS FUNÇÕES ORIGINAIS ---
         function openEscala(postoId) {
             const posto = localDB.postos.find(p => p.id === postoId);
             if (!posto) return;
@@ -818,6 +854,7 @@
 
         async function removePosto(id) { if (confirm("Tem certeza?")) { try { await _supabase.from('postos').delete().eq('id', id); await sync(); } catch (err) { console.error(err); } } }
         async function removeAgente(id) { if (confirm("Tem certeza?")) { try { await _supabase.from('equipe').delete().eq('id', id); await sync(); } catch (err) { console.error(err); } } }
+        
         async function editMinimo(id) {
             const p = localDB.postos.find(x => x.id === id);
             const nMin = prompt(`Novo mínimo para ${p.nome}:`, p.minimo);
