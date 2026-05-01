@@ -111,7 +111,6 @@
             flex: 1;
             max-width: 400px;
             position: relative;
-            margin: 0 20px;
         }
 
         .search-container .material-icons {
@@ -282,6 +281,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            align-items: center;
         }
 
         input, select {
@@ -520,13 +520,10 @@
         <section id="dashboard">
             <header class="stats-header">
                 <h2>Painel Operacional</h2>
-                
-                <!-- NOVA BARRA DE PESQUISA -->
                 <div class="search-container">
                     <span class="material-icons">search</span>
                     <input type="text" id="search-postos" class="search-input" placeholder="Pesquisar posto ou unidade..." onkeyup="filterCards()">
                 </div>
-
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <button onclick="alterarDia(-1)" style="background:none; border:none; color:var(--accent); cursor:pointer;">◀</button>
                     <div id="current-date" style="font-weight: bold; color: var(--accent);"></div>
@@ -547,7 +544,15 @@
         </section>
 
         <section id="equipe">
-            <h2>Gestão de Agentes</h2>
+            <div class="stats-header">
+                <h2>Gestão de Agentes</h2>
+                <!-- BARRA DE PESQUISA NA EQUIPE -->
+                <div class="search-container">
+                    <span class="material-icons">search</span>
+                    <input type="text" id="search-equipe" class="search-input" placeholder="Pesquisar por nome ou posto..." onkeyup="filterEquipe()">
+                </div>
+            </div>
+            
             <div class="form-container">
                 <input type="text" id="func-nome" placeholder="Nome Completo">
                 <select id="func-posto-select"></select>
@@ -564,6 +569,7 @@
             <div id="lista-equipe"></div>
         </section>
 
+        <!-- Modais permanecem iguais -->
         <div id="modal-escala" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -678,18 +684,22 @@
             }
         }
 
-        // --- NOVA FUNÇÃO DE FILTRO ---
         function filterCards() {
             const termo = document.getElementById('search-postos').value.toLowerCase();
             const cards = document.querySelectorAll('#cards-container .card');
-            
             cards.forEach(card => {
                 const nomePosto = card.querySelector('h3').innerText.toLowerCase();
-                if (nomePosto.includes(termo)) {
-                    card.style.display = "";
-                } else {
-                    card.style.display = "none";
-                }
+                card.style.display = nomePosto.includes(termo) ? "" : "none";
+            });
+        }
+
+        // --- NOVA FUNÇÃO FILTRO EQUIPE ---
+        function filterEquipe() {
+            const termo = document.getElementById('search-equipe').value.toLowerCase();
+            const items = document.querySelectorAll('#lista-equipe .list-item');
+            items.forEach(item => {
+                const textoAgente = item.querySelector('span').innerText.toLowerCase();
+                item.style.display = textoAgente.includes(termo) ? "" : "none";
             });
         }
 
@@ -780,7 +790,6 @@
                 container.appendChild(card);
             });
 
-            // Aplica o filtro após renderizar, caso haja algo digitado
             filterCards();
 
             const selectPostos = localDB.postos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
@@ -795,6 +804,8 @@
                 <div class="list-item"><span>${e.nome} - ${localDB.postos.find(p => p.id === e.posto_id)?.nome || 'S/P'} (${e.escala})</span>
                 <div><button class="btn-edit" onclick="editAgente('${e.id}')">Editar</button>
                 <button class="btn-remove" onclick="removeAgente('${e.id}')">Remover</button></div></div>`).join('');
+            
+            filterEquipe(); // Aplica filtro na equipe ao renderizar
         }
 
         function openEscala(postoId) {
